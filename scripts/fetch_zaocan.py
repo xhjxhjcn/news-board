@@ -28,7 +28,7 @@ import sys
 import time
 import urllib.error
 import urllib.request
-from datetime import date, datetime
+from datetime import date, datetime, timedelta
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent.parent
@@ -163,52 +163,277 @@ def fetch_fast_news(page_size=50):
             'summary': clean_html(it.get('summary', '')),
             'stocks': it.get('stockList') or [],
             'important': bool(it.get('titleColor')),
+            'code': str(it.get('code', '')),
+            'source': 'eastmoney',
         })
     return out
 
 
 def fetch_cnstock_yaowen():
-    """抓上证报·中国证券网首页要闻标题，返回 [{'title','tag','time'}, ...]"""
+    """抓上证报·中国证券网首页要闻标题，返回 [{'title','url'}, ...]"""
     url = 'https://www.cnstock.com/'
     data = http_get(url, referer='https://www.cnstock.com/')
     if not data:
         return []
     text = data.decode('utf-8', errors='replace')
-    # 首页为 JS 渲染，尝试从内嵌 JSON 或结构化块提取；失败则返回空
     items = []
-    # 简单回退：匹配常见标题块
-    for m in re.finditer(r'<a[^>]*href="([^"]+)"[^>]*>([^<]{6,80})</a>', text):
+    seen = set()
+    # 文章结构形如 <a href="/commonDetail/784463" ...><div ...>标题</div></a>
+    # 标题嵌在 <a> 内层的 <div> 文本节点，需跨标签匹配
+    for m in re.finditer(
+            r'<a[^>]*href="(/commonDetail/\d+)"[^>]*>(?:(?!</a>).)*?<div[^>]*>([^<]{6,80})</div>',
+            text, re.S):
         href, title = m.group(1), clean_html(m.group(2))
-        if title and ('要闻' in title or '政策' in title or '公告' in title or len(title) >= 8):
-            items.append({'title': title, 'url': href, 'time': ''})
+        if not title or href in seen:
+            continue
+        seen.add(href)
+        items.append({'title': title, 'url': 'https://www.cnstock.com' + href})
     return items[:20]
 
 
-def classify_news(items):
-    """把快讯按栏目分拣：宏观/公告/板块/风险/其他。"""
-    macro_kw = ['央行', '财政部', '国务院', '发改委', '证监会', '银保监', '统计局',
-                'PMI', 'CPI', 'GDP', 'LPR', '逆回购', 'MLF', '降准', '降息',
-                '政治局', '国常会', '商务部', '工信部', '住建部', '海关', '外汇']
-    notice_kw = ['回购', '增持', '减持', '中标', '业绩', '净利', '营收', '重组',
-                 '停牌', '复牌', '分红', '定增', '可转债', '拟募资', '收购', '并购']
-    sector_kw = ['涨价', '供需', '景气', '排产', '扩产', '订单', '突破', '获批',
-                 '中标', '创新', '放量', '满产', '紧缺', '缺口']
-    risk_kw = ['退市', '处罚', '违规', '立案', '调查', '爆雷', '违约', '下调',
-               '预警', '减持', '亏损', '预亏', 'ST']
+def fetch_stcn_yaowen():
+    """抓证券时报首页要闻（服务端渲染，标题/链接可直接提取）。
+    返回 [{'title','url'}, ...]，url 为文章详情页。"""
+    url = 'https://www.stcn.com/'
+    data = http_get(url, referer='https://www.stcn.com/')
+    if not data:
+        return []
+    text = data.decode('utf-8', errors='replace')
+    items = []
+    seen = set()
+    for m in re.finditer(r'<a[^>]*href="(/article/detail/\d+\.html)"[^>]*>([^<]{6,80})</a>', text):
+        href, title = m.group(1), clean_html(m.group(2))
+        if not title or href in seen:
+            continue
+        seen.add(href)
+        items.append({'title': title, 'url': 'https://www.stcn.com' + href})
+    return items[:30]
 
-    buckets = {'宏观要闻': [], '重磅公告': [], '板块异动': [], '风险提示': [], '其他快讯': []}
+
+def filter_overnight(items, now=None):
+    """时间窗口过滤：只保留隔夜消息（上一交易日收盘 → 今日 08:00）。
+
+    早参目标是"开盘前速览"，只关心隔夜（A 股收盘后到今早开盘前）发生的事。
+    东财快讯的 time 字段形如 '2026-09-01 21:35:12'。
+
+    边界处理：
+    - 周一（weekday=0）往前推到上周五 15:00，覆盖整个周末；
+    - 其余工作日往前推到昨天 15:00。
+    """
+    now = now or datetime.now()
+    today = now.date()
+    wd = today.weekday()
+    # 下界：上一个交易日收盘时间 15:00
+    back_days = 3 if wd == 0 else 1  # 周一往前推 3 天到周五
+    lo = datetime.combine(today - timedelta(days=back_days),
+                          datetime.min.time()).replace(hour=15, minute=0)
+    # 上界：今日 08:00（开盘前）
+    hi = datetime.combine(today, datetime.min.time()).replace(hour=8, minute=0)
+    out = []
     for it in items:
+        ts = it.get('time', '')
+        if not ts:
+            # 无时间的（如 cnstock/stcn 首页要闻）不在此处过滤，单独处理
+            out.append(it)
+            continue
+        try:
+            t = datetime.strptime(ts[:19], '%Y-%m-%d %H:%M:%S')
+        except ValueError:
+            out.append(it)
+            continue
+        if lo <= t <= hi:
+            out.append(it)
+    return out
+
+
+def _extract_entities(title):
+    """提取标题里的"强实体"词，用于跨源匹配。
+
+    强实体 = 公司/机构专名（含股份/科技/生物/医疗/电气/汽车/证券/银行/保险/
+    能源/电子/半导体/材料 等后缀），或明确的主体名。
+    这些词一旦跨源同时出现，几乎可以确定是同一事件，误匹配率低。
+    （"央行/加息/出口"这类高频泛词不纳入，避免误匹配。）
+    """
+    pats = [
+        r'[\u4e00-\u9fa5]{2,8}(?:股份|科技|生物|医疗|医药|电气|汽车|证券|银行|保险|能源|电子|半导体|材料|化工|钢|铝|锂|钴|地产|控股|集团|实业|重工)',
+    ]
+    ents = set()
+    for p in pats:
+        ents.update(re.findall(p, title))
+    # 过滤掉明显不是实体的通用词
+    drop = {'公司股份', '中国汽车', '本次股份', '这些股份', 'A股', '港股', '科技巨头',
+            '科技公司', '半导体', '汽车板块', '新能源汽车'}
+    ents -= drop
+    return ents
+
+
+def _tokenize(title):
+    """提取标题里的核心片段，用于跨源标题包含匹配（辅助）。"""
+    s = re.sub(r'[，。、；：！？（）\[\]【】“”"\'·\s]', '', title)
+    s = re.sub(r'[0-9]{1,2}月[0-9]{1,2}日|[0-9:：]+', '', s)
+    return s
+
+
+def cross_source_score(items):
+    """多源交叉验证：统计每条消息被几个信息源"共同报道"。
+
+    策略：对东财快讯（源 A，主源）逐条与其他源（证券时报 B、上证报 C）的标题做
+    实体匹配。被越多源报道的消息越重要，额外加权。
+    匹配分两级：
+      1) 强实体命中（公司/机构专名跨源同时出现）—— 高分，可信
+      2) 标题包含（短标题互相包含）—— 中分
+    返回 {index: extra_score} 映射。
+    """
+    src_a = [i for i in range(len(items)) if items[i].get('source') == 'eastmoney']
+    src_b = [i for i in range(len(items)) if items[i].get('source') == 'stcn']
+    src_c = [i for i in range(len(items)) if items[i].get('source') == 'cnstock']
+    if not src_a or not (src_b or src_c):
+        return {}
+
+    # 预提取其他源的实体与 token
+    other = []  # (index, entity_set, token)
+    for i in src_b + src_c:
+        ti = items[i]['title']
+        other.append((i, _extract_entities(ti), _tokenize(ti)))
+
+    extra = {}
+    for i in src_a:
+        ta = _tokenize(items[i]['title'])
+        ea = _extract_entities(items[i]['title'])
+        if not ta:
+            continue
+        hits = 0
+        hit_via_entity = set()
+        for _, eb, tb in other:
+            matched = False
+            # 1) 强实体命中
+            if ea and eb and (ea & eb):
+                matched = True
+                hit_via_entity |= (ea & eb)
+            # 2) 标题包含（辅助，需足够长避免误匹配）
+            elif ta and tb and (len(ta) >= 6 and len(tb) >= 6) and (ta in tb or tb in ta):
+                matched = True
+            if matched:
+                hits += 1
+        if hits:
+            # 每多一个源报道 +22 分
+            extra[i] = 22 * hits
+    return extra
+
+
+def classify_news(items):
+    """把快讯按栏目分拣，只保留重要消息（三重筛选：时间窗口 + 关键词加权 + 标红加分）。
+
+    返回 dict：栏目名 -> [条目列表]，每个条目含 score 字段（用于排序）。
+    不再产生"其他快讯"杂项栏——命中不了核心栏目的直接丢弃。
+    """
+    # 关键词分级（关键词 -> 栏目, 权重）
+    # 权重越高越重要，命中即得分；强信号词额外大幅加分
+    STRONG = ['降准', '降息', '加息', '重磅', '突发', '央行', '国务院', '政治局',
+              '国常会', '证监会', '立案', '退市', '爆雷', '违约', '停牌', '复牌',
+              '重组', '收购', '并购', '涨停', '跌停']
+    RULES = [
+        # (关键词, 栏目, 权重)
+        ('央行', '宏观要闻', 30),
+        ('降准', '宏观要闻', 40),
+        ('降息', '宏观要闻', 40),
+        ('加息', '宏观要闻', 35),
+        ('MLF', '宏观要闻', 30),
+        ('LPR', '宏观要闻', 30),
+        ('逆回购', '宏观要闻', 28),
+        ('财政部', '宏观要闻', 25),
+        ('国务院', '宏观要闻', 32),
+        ('政治局', '宏观要闻', 35),
+        ('国常会', '宏观要闻', 33),
+        ('发改委', '宏观要闻', 22),
+        ('证监会', '宏观要闻', 30),
+        ('银保监', '宏观要闻', 25),
+        ('统计局', '宏观要闻', 20),
+        ('PMI', '宏观要闻', 24),
+        ('CPI', '宏观要闻', 24),
+        ('GDP', '宏观要闻', 22),
+        ('商务部', '宏观要闻', 18),
+        ('工信部', '宏观要闻', 18),
+        ('住建部', '宏观要闻', 18),
+        ('海关', '宏观要闻', 15),
+        ('外汇', '宏观要闻', 18),
+        # 重磅公告
+        ('停牌', '重磅公告', 32),
+        ('复牌', '重磅公告', 32),
+        ('重组', '重磅公告', 30),
+        ('收购', '重磅公告', 26),
+        ('并购', '重磅公告', 26),
+        ('回购', '重磅公告', 22),
+        ('增持', '重磅公告', 22),
+        ('减持', '重磅公告', 24),
+        ('中标', '重磅公告', 20),
+        ('业绩', '重磅公告', 18),
+        ('净利', '重磅公告', 18),
+        ('定增', '重磅公告', 22),
+        ('可转债', '重磅公告', 20),
+        ('分红', '重磅公告', 18),
+        # 板块异动
+        ('涨价', '板块异动', 22),
+        ('供需', '板块异动', 20),
+        ('紧缺', '板块异动', 22),
+        ('缺口', '板块异动', 20),
+        ('扩产', '板块异动', 18),
+        ('排产', '板块异动', 18),
+        ('满产', '板块异动', 18),
+        ('获批', '板块异动', 18),
+        ('突破', '板块异动', 16),
+        ('景气', '板块异动', 16),
+        ('订单', '板块异动', 16),
+        # 风险提示
+        ('退市', '风险提示', 38),
+        ('立案', '风险提示', 35),
+        ('爆雷', '风险提示', 35),
+        ('违约', '风险提示', 33),
+        ('处罚', '风险提示', 30),
+        ('违规', '风险提示', 28),
+        ('调查', '风险提示', 28),
+        ('下调', '风险提示', 20),
+        ('预警', '风险提示', 20),
+        ('亏损', '风险提示', 20),
+        ('预亏', '风险提示', 22),
+        ('ST', '风险提示', 24),
+    ]
+
+    buckets = {'宏观要闻': [], '重磅公告': [], '板块异动': [], '风险提示': []}
+
+    # 多源交叉验证：被多个源共同报道的消息，大幅加分
+    cross_extra = cross_source_score(items)
+
+    for idx, it in enumerate(items):
         t = it['title'] + it['summary']
-        if any(k in t for k in risk_kw):
-            buckets['风险提示'].append(it)
-        elif any(k in t for k in macro_kw):
-            buckets['宏观要闻'].append(it)
-        elif any(k in t for k in notice_kw):
-            buckets['重磅公告'].append(it)
-        elif any(k in t for k in sector_kw):
-            buckets['板块异动'].append(it)
-        else:
-            buckets['其他快讯'].append(it)
+        best_cat = None
+        best_score = 0
+        # 关键词匹配，取最高分栏目
+        for kw, cat, w in RULES:
+            if kw in t:
+                score = w
+                if kw in STRONG:
+                    score += 10  # 强信号词额外加分
+                if score > best_score:
+                    best_score = score
+                    best_cat = cat
+        if best_cat is None:
+            continue  # 命中不了核心栏目的，丢弃（杂七杂八不放）
+        # 东方财富编辑标红 = 重要，额外加分
+        if it.get('important'):
+            best_score += 15
+        # 多源交叉验证加分（多个源都报道 = 更重要）
+        if idx in cross_extra:
+            best_score += cross_extra[idx]
+            it['multi_source'] = cross_extra[idx] // 22  # 记录被几个额外源命中
+        it['score'] = best_score
+        buckets[best_cat].append(it)
+
+    # 每个栏目按分数降序，只保留高分（重要）消息
+    for cat in buckets:
+        buckets[cat].sort(key=lambda x: x.get('score', 0), reverse=True)
+        # 过滤：分数太低的丢弃；每栏最多 8 条
+        buckets[cat] = [x for x in buckets[cat] if x.get('score', 0) >= 18][:8]
     return buckets
 
 
@@ -285,13 +510,13 @@ def render_page(d, quotes, buckets, generated):
     # 栏目
     sections = []
     order = [('宏观要闻', '🏛️'), ('重磅公告', '📋'), ('板块异动', '📈'),
-             ('风险提示', '⚠️'), ('其他快讯', '📰')]
+             ('风险提示', '⚠️')]
     for name, icon in order:
         items = buckets.get(name, [])
         if not items:
             continue
         cards = []
-        for it in items[:12]:
+        for it in items[:8]:
             time_str = it.get('time', '')
             if time_str and len(time_str) >= 16:
                 time_str = time_str[11:16]
@@ -299,11 +524,26 @@ def render_page(d, quotes, buckets, generated):
             summary_html = ('<p class="item-summary">%s</p>' % htmllib.escape(summary)
                             if summary else '')
             tag = '<span class="tag-hot">重要</span>' if it.get('important') else ''
+            code = it.get('code', '')
+            source = it.get('source', '')
+            if source == 'eastmoney' and code:
+                link = 'https://finance.eastmoney.com/a/%s.html' % htmllib.escape(code)
+                target = ' target="_blank" rel="noopener"'
+            elif source in ('cnstock', 'stcn') and code:
+                link = htmllib.escape(code)
+                target = ' target="_blank" rel="noopener"'
+            else:
+                link = ''
+                target = ''
+            if link:
+                title_html = ('<a class="item-title" href="%s"%s>%s</a>'
+                              % (link, target, htmllib.escape(it['title'])))
+            else:
+                title_html = '<span class="item-title">%s</span>' % htmllib.escape(it['title'])
             cards.append(
                 '<article class="item"><div class="item-head">'
-                '<span class="item-time">%s</span>%s<span class="item-title">%s</span></div>%s</article>'
-                % (htmllib.escape(time_str), tag,
-                   htmllib.escape(it['title']), summary_html))
+                '<span class="item-time">%s</span>%s%s</div>%s</article>'
+                % (htmllib.escape(time_str), tag, title_html, summary_html))
         sections.append(
             '<section class="sec"><h2 class="sec-title">%s %s <span class="sec-count">%d</span></h2>'
             '<div class="item-list">%s</div></section>'
@@ -371,6 +611,8 @@ PAGE_TEMPLATE = '''<!DOCTYPE html>
         .item-head { display: flex; align-items: baseline; gap: 8px; }
         .item-time { font-size: 12px; color: #aaa; flex-shrink: 0; }
         .item-title { font-size: 15px; font-weight: 600; line-height: 1.5; }
+        a.item-title { color: inherit; text-decoration: none; }
+        a.item-title:hover { text-decoration: underline; }
         .tag-hot { font-size: 11px; color: #fff; background: var(--up); border-radius: 4px; padding: 1px 5px; flex-shrink: 0; }
         .item-summary { font-size: 13px; color: #666; margin: 6px 0 0; line-height: 1.6; }
         .zc-footer { text-align: center; font-size: 12px; color: #999; margin-top: 30px; line-height: 1.8; }
@@ -416,7 +658,7 @@ __QUOTES__
 __SECTIONS__
 
         <footer class="zc-footer">
-            <p>数据来源：东方财富网、上海证券报·中国证券网等公开信息，版权归原作者所有，本页仅作个人投资参考，不构成任何投资建议。</p>
+            <p>数据来源：东方财富网、证券时报、上海证券报·中国证券网等公开信息，版权归原作者所有，本页仅作个人投资参考，不构成任何投资建议。</p>
             <p>本页由脚本自动生成于 __GENERATED__ · 每日 08:00 更新 · <a href="/xwlb/">查看新闻联播</a></p>
         </footer>
     </main>
@@ -461,12 +703,30 @@ def main():
     news = fetch_fast_news(60)
     log('快讯拿到 %d 条' % len(news))
 
-    # 补充上证报要闻（可选，失败不阻塞）
+    # 时间窗口过滤：只保留隔夜（昨 15:00 → 今 08:00）的快讯
+    before = len(news)
+    news = filter_overnight(news)
+    log('隔夜时间窗口过滤后剩 %d 条（原 %d）' % (len(news), before))
+
+    # 补充证券时报要闻（源 B）
+    stcn = fetch_stcn_yaowen()
+    if stcn:
+        for s in stcn:
+            news.append({'time': '', 'title': s['title'], 'summary': '',
+                         'stocks': [], 'important': False,
+                         'code': s['url'], 'source': 'stcn'})
+        log('证券时报要闻补充 %d 条' % len(stcn))
+
+    # 补充上证报要闻（源 C，可选，失败不阻塞）
     cnstock = fetch_cnstock_yaowen()
     if cnstock:
         for c in cnstock:
+            url = c.get('url', '')
+            if url.startswith('/'):
+                url = 'https://www.cnstock.com' + url
             news.append({'time': '', 'title': c['title'], 'summary': '',
-                         'stocks': [], 'important': False})
+                         'stocks': [], 'important': False,
+                         'code': url, 'source': 'cnstock'})
         log('上证报要闻补充 %d 条' % len(cnstock))
 
     buckets = classify_news(news)
