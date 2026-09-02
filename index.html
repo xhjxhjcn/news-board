@@ -3,116 +3,126 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>新闻资讯 · 徐宏江的小站</title>
-    <meta name="description" content="每日《新闻联播》主要内容图文摘要，每晚自动更新。">
+    <title>2026 年 9 月 2 日 早参 · 徐宏江的小站</title>
+    <meta name="description" content="2026 年 9 月 2 日 每日早参：隔夜外盘、宏观要闻、重磅公告、板块异动、风险提示，开盘前速览。">
     <link rel="stylesheet" href="assets/style.css">
+    <style>
+        :root { --up: #e5484d; --down: #0f9d58; }
+        .zc-wrap { max-width: 760px; margin: 0 auto; padding: 0 16px 40px; }
+        .zc-hero { margin: 16px 0 20px; padding: 22px 20px; border-radius: 16px;
+            background: linear-gradient(135deg, #3b5bdb, #7048e8); color: #fff; }
+        .zc-hero .date { font-size: 13px; opacity: .85; }
+        .zc-hero h1 { font-size: 24px; margin: 6px 0 4px; }
+        .zc-hero .tip { font-size: 13px; opacity: .85; }
+        .xwlb-card { display: flex; gap: 14px; background: #fff; border: 1px solid #eee;
+            border-radius: 14px; padding: 14px; margin: 0 0 20px; text-decoration: none;
+            color: inherit; box-shadow: 0 1px 6px rgba(0,0,0,.05); transition: transform .15s; }
+        .xwlb-card:hover { transform: translateY(-2px); }
+        .xwlb-card.empty { display: block; color: #999; text-align: center; }
+        .xwlb-cover { width: 120px; height: 78px; object-fit: cover; border-radius: 10px; flex-shrink: 0; }
+        .xwlb-body { flex: 1; min-width: 0; }
+        .xwlb-head { display: flex; align-items: center; gap: 8px; margin-bottom: 4px; }
+        .xwlb-tag { font-size: 11px; color: #fff; background: linear-gradient(135deg,#3b5bdb,#7048e8);
+            border-radius: 4px; padding: 2px 7px; }
+        .xwlb-date { font-size: 12px; color: #999; }
+        .xwlb-body h3 { font-size: 16px; margin: 2px 0 6px; }
+        .xwlb-titles { margin: 0; padding-left: 18px; font-size: 13px; color: #555; line-height: 1.6; }
+        .xwlb-titles li { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+        .xwlb-more { font-size: 12px; color: #3b5bdb; margin-top: 6px; display: inline-block; }
+        .qz-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 10px; margin: 16px 0 24px; }
+        .qz-item { background: #fff; border: 1px solid #eee; border-radius: 12px; padding: 12px 14px;
+            box-shadow: 0 1px 4px rgba(0,0,0,.04); }
+        .qz-name { display: block; font-size: 12px; color: #888; }
+        .qz-val { display: block; font-size: 18px; font-weight: 700; margin: 4px 0; }
+        .qz-chg { font-size: 13px; font-weight: 600; }
+        .qz-item.up .qz-chg { color: var(--up); }
+        .qz-item.down .qz-chg { color: var(--down); }
+        .qz-item.flat .qz-chg { color: #999; }
+        .sec { margin: 20px 0; }
+        .sec-title { font-size: 17px; margin: 0 0 10px; display: flex; align-items: center; gap: 6px; }
+        .sec-count { font-size: 12px; color: #888; background: #f0f0f5; border-radius: 10px; padding: 2px 8px; }
+        .item-list { display: flex; flex-direction: column; gap: 10px; }
+        .item { background: #fff; border: 1px solid #eee; border-radius: 12px; padding: 12px 14px; box-shadow: 0 1px 4px rgba(0,0,0,.04); }
+        .item-head { display: flex; align-items: baseline; gap: 8px; }
+        .item-time { font-size: 12px; color: #aaa; flex-shrink: 0; }
+        .item-title { font-size: 15px; font-weight: 600; line-height: 1.5; }
+        .tag-hot { font-size: 11px; color: #fff; background: var(--up); border-radius: 4px; padding: 1px 5px; flex-shrink: 0; }
+        .item-summary { font-size: 13px; color: #666; margin: 6px 0 0; line-height: 1.6; }
+        .zc-footer { text-align: center; font-size: 12px; color: #999; margin-top: 30px; line-height: 1.8; }
+        @media (prefers-color-scheme: dark) {
+            .xwlb-card, .qz-item, .item { background: #1f2130; border-color: #2c2f42; }
+            .xwlb-body h3, .qz-val, .item-title { color: #e8eaf2; }
+            .xwlb-titles, .item-summary { color: #a6a9bd; }
+            .xwlb-date, .qz-name { color: #8b8ea3; }
+            .item-time { color: #6b6e80; }
+            .sec-count { background: #2c2f42; color: #8b8ea3; }
+        }
+    </style>
 </head>
 <body>
     <header class="topbar">
         <div class="brand">
             <span class="brand-mark">
                 <svg viewBox="0 0 16 16" xmlns="http://www.w3.org/2000/svg">
-                    <rect x="1" y="3" width="14" height="10" rx="2"></rect>
-                    <path d="M6 13h4v2H6z" opacity="0.7"></path>
-                    <path d="M5 6.2v3.6l3.2-1.8z" fill="#fff"></path>
+                    <path d="M2 13 L8 2 L14 13" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                    <path d="M4.5 9.5 H11.5" stroke="#fff" stroke-width="1.6" stroke-linecap="round"/>
                 </svg>
             </span>
-            新闻资讯
-            <span class="brand-sub">新闻联播 · 每日图文摘要</span>
+            早参
+            <span class="brand-sub">开盘前 · 每日速览</span>
         </div>
         <a class="home" href="https://www.xhja.cn/" target="_blank" rel="noopener">徐宏江的小站 ↗</a>
     </header>
 
-    <main class="page-main">
-        <div id="notice" class="notice hidden"></div>
-        <div id="loading" class="loading">正在加载文章列表……</div>
+    <main class="zc-wrap">
+        <section class="zc-hero">
+            <div class="date">2026 年 9 月 2 日 · 星期三</div>
+            <h1>今日早参</h1>
+            <div class="tip">隔夜外盘 · 宏观要闻 · 重磅公告 · 板块异动 · 风险提示，开盘前 3 分钟速览</div>
+        </section>
 
-        <section id="featured"></section>
+<a class="xwlb-card" href="/xwlb/2026-09-01.html"><img class="xwlb-cover" src="/images/2026-09-01/cover.jpg" alt="2026-09-01 新闻联播" loading="lazy"><div class="xwlb-body"><div class="xwlb-head"><span class="xwlb-tag">新闻联播</span><span class="xwlb-date">2026-09-01 · 星期二</span></div><h3>《新闻联播》主要内容</h3><ul class="xwlb-titles"><li>习近平出席上海合作组织成员国元首理事会第二十六次会议并发表重要讲话</li><li>习近平出席“上海合作组织+”会议并发表重要讲话</li><li>央视快评：推动上海合作组织实现更高质量发展</li></ul><span class="xwlb-more">共 17 条 · 阅读全文 →</span></div></a>
 
-        <h2 class="section-title">往期回顾</h2>
-        <section id="archive" class="archive-grid"></section>
+        <h2 class="section-title">隔夜外盘</h2>
+        <div class="qz-grid">
+<div class="qz-item down"><span class="qz-name">道琼斯</span><span class="qz-val">52766.88</span><span class="qz-chg">-0.79%</span></div>
+<div class="qz-item down"><span class="qz-name">纳斯达克</span><span class="qz-val">26099.77</span><span class="qz-chg">-1.03%</span></div>
+<div class="qz-item down"><span class="qz-name">标普500</span><span class="qz-val">7631.47</span><span class="qz-chg">-0.71%</span></div>
+<div class="qz-item up"><span class="qz-name">A50三倍做空</span><span class="qz-val">28.86</span><span class="qz-chg">+0.24%</span></div>
+<div class="qz-item down"><span class="qz-name">NYMEX原油</span><span class="qz-val">89.95</span><span class="qz-chg">-0.30%</span></div>
+<div class="qz-item down"><span class="qz-name">COMEX黄金</span><span class="qz-val">4372.39</span><span class="qz-chg">-0.55%</span></div>
+<div class="qz-item up"><span class="qz-name">人民币兑美元</span><span class="qz-val">6.7214</span><span class="qz-chg">+0.00%</span></div>
+<div class="qz-item down"><span class="qz-name">日经225</span><span class="qz-val">64325.42</span><span class="qz-chg">-2.85%</span></div>
+        </div>
 
-        <footer class="page-footer">
-            <p>内容来源：央视网《新闻联播》（tv.cctv.com），版权归原作者所有，本站仅作个人学习摘要并附原文链接。</p>
-            <p><a href="https://www.xhja.cn/">徐宏江的小站</a> · 每日更新 · <span id="latest-date"></span></p>
+<section class="sec"><h2 class="sec-title">🏛️ 宏观要闻 <span class="sec-count">4</span></h2><div class="item-list"><article class="item"><div class="item-head"><span class="item-time">15:26</span><span class="item-title">俄罗斯将2026年GDP增长预期从0.4%上调至0.6%</span></div><p class="item-summary">俄罗斯将2026年GDP增长预期从0.4%上调至0.6%。</p></article>
+<article class="item"><div class="item-head"><span class="item-time">15:05</span><span class="item-title">欧洲央行管委内格尔：德国今年的GDP增长大约在1%左右</span></div><p class="item-summary">欧洲央行管委内格尔称，德国今年的GDP增长大约在1%左右。</p></article>
+<article class="item"><div class="item-head"><span class="item-time">15:05</span><span class="item-title">德国央行行长：市场定价欧央行9月议息会议加息概率已经超过95%</span></div><p class="item-summary">【德国央行行长：市场定价欧央行9月议息会议加息概率已经超过95%】德国央行行长内格尔表示，市场定价欧央行9月议息会议加息概率已经超过95%。</p></article>
+<article class="item"><div class="item-head"><span class="item-time">14:38</span><span class="item-title">数据显示日本央行9月加息概率升至97%</span></div><p class="item-summary">【数据显示日本央行9月加息概率升至97%】数据显示，日本央行9月加息概率升至97%。</p></article></div></section>
+<section class="sec"><h2 class="sec-title">📋 重磅公告 <span class="sec-count">2</span></h2><div class="item-list"><article class="item"><div class="item-head"><span class="item-time">15:36</span><span class="item-title">中国东航：积极参与浦东机场四期扩建 开展相关基建项目规划建设</span></div><p class="item-summary">【中国东航：积极参与浦东机场四期扩建 开展相关基建项目规划建设】中国东航董事长王志清9月2日在中期联合业绩说明会上表示，东航积极参与浦东机场四期扩建，开展相关基建项目的规划建设，主要集中在机务维修、地面服务、运行指挥、机组出勤、特种车辆维修、货运仓储等功能用途。</p></article>
+<article class="item"><div class="item-head"><span class="item-time">14:44</span><span class="item-title">中国东航：预计客机机队规模年底将达841架</span></div><p class="item-summary">【中国东航：预计客机机队规模年底将达841架】中国东航董事会秘书李干斌9月2日在中期联合业绩说明会上表示，公司预计客机机队规模到2026年年底将达到841架。</p></article></div></section>
+<section class="sec"><h2 class="sec-title">📈 板块异动 <span class="sec-count">4</span></h2><div class="item-list"><article class="item"><div class="item-head"><span class="item-time">15:30</span><span class="item-title">今夏吐鲁番49.8℃ 破我国国家气象站观测纪录</span></div><p class="item-summary">【今夏吐鲁番49.8℃ 破我国国家气象站观测纪录】2日，中国气象局召开9月新闻发布会。国家气候中心副主任高荣介绍，今年夏季（6-8月），有74个国家气象站日最高气温达到或突破历史极值。7月21日，吐鲁番东坎站最高气温49.8℃，破我国国家气象站观测纪录。</p></article>
+<article class="item"><div class="item-head"><span class="item-time">15:09</span><span class="item-title">科技部部长阴和俊率团赴美国出席2026年二十国集团创新部长级会议</span></div><p class="item-summary">【科技部部长阴和俊率团赴美国出席2026年二十国集团创新部长级会议】2026年8月31日至9月1日，科技部部长阴和俊率领中国代表团赴美国出席G20创新工作组创新部长级会议。</p></article>
+<article class="item"><div class="item-head"><span class="item-time">15:05</span><span class="item-title">消息称台积电CoWoS供应紧缺使得客户聚焦英特尔EMIB-T</span></div><p class="item-summary">【消息称台积电CoWoS供应紧缺使得客户聚焦英特尔EMIB-T】据报道，台积电的CoWoS订单已排满至2027年，部分客户甚至需要等待一年以上才能拿到订单。在台积电供应瓶颈持续的情况下，英特尔的新技术作为替代方案正受到关注。</p></article>
+<article class="item"><div class="item-head"><span class="item-time">14:44</span><span class="item-title">京东方智驭与星源智达成深度战略合作</span></div><p class="item-summary">【京东方智驭与星源智达成深度战略合作】9月1日，北京京东方智驭科技有限公司与北京星源智机器人科技有限公司在合肥签署战略合作协议。根据协议，双方将以3C、显示制造场景为核心，以具身机器人联合实验室为载体，围绕场景价值验证、数据采集处理、垂类创新研发、场景工程落地、市场联合开拓五大方向展开深度战略合作，构建“应用验证—联合开发—规模商业化”的生态合作体系。</p></article></div></section>
+<section class="sec"><h2 class="sec-title">⚠️ 风险提示 <span class="sec-count">1</span></h2><div class="item-list"><article class="item"><div class="item-head"><span class="item-time">15:18</span><span class="item-title">贝壳：深圳近期部分业主上调房产挂牌价</span></div><p class="item-summary">【贝壳：深圳近期部分业主上调房产挂牌价】深圳贝壳研究院院长肖小平表示，近期上调房产挂牌价的业主明显变多。据调查，不少业主觉得未来新房供应减少，二手房会变得吃香；有部分客户或业主，向经纪人咨询如何办理40年房贷；需求前端的数据也开始增长，对比前一周周末（8月22—23日），8月29—30日周末新增客量增长6.5%、咨询量增长3.2%。</p></article></div></section>
+<section class="sec"><h2 class="sec-title">📰 其他快讯 <span class="sec-count">64</span></h2><div class="item-list"><article class="item"><div class="item-head"><span class="item-time">15:41</span><span class="item-title">美国战略石油储备降至44年最低水平</span></div><p class="item-summary">【美国战略石油储备降至44年最低水平】美国能源部近日公布的数据显示，截至8月28日当周，美国战略石油储备较此前一周减少超过300万桶，库存量降至2.866亿桶，跌至1982年以来的最低水平。</p></article>
+<article class="item"><div class="item-head"><span class="item-time">15:40</span><span class="item-title">外交部：对话谈判是解决乌克兰危机的唯一可行出路</span></div><p class="item-summary">【外交部：对话谈判是解决乌克兰危机的唯一可行出路】9月2日，外交部发言人郭嘉昆主持例行记者会。针对乌克兰危机的有关提问，郭嘉昆表示，对话谈判是解决乌克兰危机的唯一可行出路。中方敦促各方保持冷静克制，共同推动局势尽快降温，为政治解决危机积累条件。</p></article>
+<article class="item"><div class="item-head"><span class="item-time">15:39</span><span class="tag-hot">重要</span><span class="item-title">中俄领导人讨论了中美俄三方在APEC会晤可能性？外交部：目前无可提供的信息</span></div><p class="item-summary">【中俄领导人讨论了中美俄三方在APEC会晤可能性？外交部：目前无可提供的信息】9月2日，外交部发言人郭嘉昆主持例行记者会。彭博社记者提问，据报道，俄罗斯总统普京在与中方领导人会谈期间，讨论了中俄美在今年中国主办亚太经合组织（APEC）峰会期间举行三方会晤的可能性。请问外交部对此有何评论？“关于你提到的问题，我目前没有可以提供的信息。”郭嘉昆表示，作为今年亚太经合组织东道主，中方愿同各方一道，共同推动APEC中国年圆满成功，为促进亚太和世界经济增长作出新贡献。</p></article>
+<article class="item"><div class="item-head"><span class="item-time">15:36</span><span class="item-title">中国航发召开民用燃机产业研讨会</span></div><p class="item-summary">【中国航发召开民用燃机产业研讨会】据中国航空发动机集团消息，8月31日，中国航发召开民用燃机产业研讨会，系统分析民用燃机产业发展形势，研讨集团民用燃机产业高质量发展路径。会议听取了集团民用燃机研发体系建设、产业市场及政策分析、产品经营及投资方向等工作汇报，围绕推动民用燃机产业“十五五”破局发展进行深入研讨交流，进一步凝聚共识、汇聚合力。</p></article>
+<article class="item"><div class="item-head"><span class="item-time">15:35</span><span class="item-title">欧洲多国经历有记录以来最热夏天</span></div><p class="item-summary">【欧洲多国经历有记录以来最热夏天】欧洲多国气象部门公布数据称，今年夏季气温创有记录以来的最高纪录。</p></article>
+<article class="item"><div class="item-head"><span class="item-time">15:35</span><span class="item-title">爱仕达：首个机器狗产品有望在今年第四季度下线</span></div><p class="item-summary">【爱仕达：首个机器狗产品有望在今年第四季度下线】爱仕达9月1日接受机构调研时表示，当前公司以智元四足机器狗的委托制造为核心起点，产线筹建正按计划紧密推进，首个机器狗产品有望在今年第四季度正式下线，通过质检后可进入批量生产阶段。</p></article>
+<article class="item"><div class="item-head"><span class="item-time">15:33</span><span class="item-title">瑞银集团连沛堃：全球科技投资中 中国AI供应链日渐难以忽视</span></div><p class="item-summary">【瑞银集团连沛堃：全球科技投资中 中国AI供应链日渐难以忽视】瑞银集团全球研究部亚太区总监连沛堃在第23届瑞银证券中国A股研讨会上表示，人工智能的结构性增长逻辑、中国科技供应链的国产化进程以及国内AI基础设施建设的发展方向并未改变。随着全球AI产业叙事改善、企业应用加快以及国内科技生态持续完善，中国AI产业链的中长期投资价值仍然值得关注。从海外交流情况看，许多投资者已认识到，中国AI供应链正成为全球科技投资组合中不可忽视的一环，亦有外资正用真金白银加码布局。</p></article>
+<article class="item"><div class="item-head"><span class="item-time">15:33</span><span class="item-title">上海电气与英国Elements Green深化全球新能源合作</span></div><p class="item-summary">【上海电气与英国Elements Green深化全球新能源合作】据上海电气消息，当地时间8月31日上午，上海电气集团党委书记、董事长吴磊与英国Elements Green能源公司首席执行官拉斯穆斯·弗里伊斯举行会谈，双方围绕欧洲和英国的新能源项目开发、工程建设、供应链协同及投融资合作等议题深入交换意见。</p></article>
+<article class="item"><div class="item-head"><span class="item-time">15:31</span><span class="item-title">9月将有2到3个台风登陆或明显影响我国</span></div><p class="item-summary">【9月将有2到3个台风登陆或明显影响我国】2日，中国气象局召开9月新闻发布会。国家气候中心副主任高荣表示，9月，将有2到3个台风登陆或明显影响我国，较常年同期（1.6个）偏多。</p></article>
+<article class="item"><div class="item-head"><span class="item-time">15:30</span><span class="item-title">三星MX事业部拟降低自家零部件比重</span></div><p class="item-summary">【三星MX事业部拟降低自家零部件比重】三星电子MX（移动体验）事业部为提升其Galaxy系列设备的盈利能力，正寻求采购渠道多元化，以减少对集团内部零部件的依赖。MX事业部已将美光、铠侠列为主要供应商。同时，MX事业部正在考虑将京东方的OLED面板应用到其高端S系列手机中。（thebell）</p></article>
+<article class="item"><div class="item-head"><span class="item-time">15:27</span><span class="item-title">伊朗准军事组织巴斯基民兵的3名成员在伊朗拉万岛遭美军空袭身亡</span></div><p class="item-summary">伊朗准军事组织巴斯基民兵的3名成员在伊朗拉万岛遭美军空袭身亡。</p></article>
+<article class="item"><div class="item-head"><span class="item-time">15:27</span><span class="item-title">上海完成完全虚拟人音频数据产品知识产权登记</span></div><p class="item-summary">【上海完成完全虚拟人音频数据产品知识产权登记】在AI时代，虚拟人的声音数据易被训练、复制，如何保护这类新型数字资产？2日，上海市知识产权局向上海哔哩哔哩科技有限公司颁发“洛天依音频数据集”数据（产品）知识产权登记证书。这是针对完全虚拟人音频数据产品的知识产权登记。</p></article></div></section>
+
+        <footer class="zc-footer">
+            <p>数据来源：东方财富网、上海证券报·中国证券网等公开信息，版权归原作者所有，本页仅作个人投资参考，不构成任何投资建议。</p>
+            <p>本页由脚本自动生成于 2026-09-02 15:43 · 每日 08:00 更新 · <a href="/xwlb/">查看新闻联播</a></p>
         </footer>
     </main>
-
-    <script>
-        function pad(n) { return n < 10 ? '0' + n : '' + n; }
-        function fmtDateCN(d) {
-            return d.slice(0, 4) + ' 年 ' + Number(d.slice(5, 7)) + ' 月 ' + Number(d.slice(8, 10)) + ' 日';
-        }
-        function todayStr() {
-            var t = new Date();
-            return t.getFullYear() + '-' + pad(t.getMonth() + 1) + '-' + pad(t.getDate());
-        }
-        function esc(s) {
-            return String(s == null ? '' : s).replace(/[&<>"']/g, function (c) {
-                return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c];
-            });
-        }
-
-        function renderFeatured(a) {
-            var cover = a.cover
-                ? '<img src="' + esc(a.cover) + '" alt="' + esc(fmtDateCN(a.date)) + ' 新闻联播">'
-                : '<span class="cover-fallback">暂无封面</span>';
-            var heads = (a.titles || []).slice(0, 3).map(function (t) {
-                return '<li>' + esc(t) + '</li>';
-            }).join('');
-            return '<a class="featured-card" href="' + esc(a.url) + '">' +
-                '<div class="featured-cover">' + cover + '</div>' +
-                '<div class="featured-body">' +
-                    '<div class="featured-date"><span class="day">' + a.date.slice(5).replace('-', ' / ') + '</span><span class="rest">' + esc(a.weekday || '') + '</span></div>' +
-                    '<h2>《新闻联播》主要内容摘要</h2>' +
-                    '<div class="featured-tags"><span class="pill">共 ' + a.count + ' 条</span><span class="pill ghost">图文版</span></div>' +
-                    '<ul class="featured-headlines">' + heads + '</ul>' +
-                    '<span class="featured-cta">阅读全文 →</span>' +
-                '</div>' +
-            '</a>';
-        }
-
-        function renderArchiveCard(a) {
-            var cover = a.cover
-                ? '<img src="' + esc(a.cover) + '" alt="' + esc(a.date) + '" loading="lazy">'
-                : '';
-            return '<a class="archive-card" href="' + esc(a.url) + '">' +
-                '<div class="archive-cover">' + cover + '<span class="weekday-badge">' + esc(a.weekday || '') + '</span></div>' +
-                '<div class="archive-info">' +
-                    '<div class="archive-date">' + fmtDateCN(a.date) + '</div>' +
-                    '<div class="archive-sub">共 ' + a.count + ' 条 · ' + (a.titles && a.titles[0] ? esc(a.titles[0]) : '') + '</div>' +
-                '</div>' +
-            '</a>';
-        }
-
-        fetch('news/index.json', { cache: 'no-cache' })
-            .then(function (res) { return res.ok ? res.json() : Promise.reject(new Error('http ' + res.status)); })
-            .then(function (list) {
-                document.getElementById('loading').classList.add('hidden');
-                if (!Array.isArray(list) || !list.length) {
-                    document.getElementById('notice').classList.remove('hidden');
-                    document.getElementById('notice').textContent = '暂无文章。每天《新闻联播》播出后（约 21:00）会自动更新。';
-                    return;
-                }
-                var today = todayStr();
-                if (list[0].date < today) {
-                    var n = document.getElementById('notice');
-                    n.classList.remove('hidden');
-                    n.textContent = '今天的内容还没上线：《新闻联播》每晚 19:30 播出，播完后约 21:00 自动更新，明早来看或晚上再刷新。';
-                }
-                document.getElementById('featured').innerHTML = renderFeatured(list[0]);
-                document.getElementById('latest-date').textContent = '最近更新：' + list[0].date;
-                var rest = list.slice(1);
-                document.getElementById('archive').innerHTML = rest.length
-                    ? rest.map(renderArchiveCard).join('')
-                    : '<div class="notice">暂时只有最新一期，往期会逐渐积累。</div>';
-            })
-            .catch(function () {
-                document.getElementById('loading').classList.add('hidden');
-                var n = document.getElementById('notice');
-                n.classList.remove('hidden');
-                n.textContent = '文章列表加载失败：请通过 http 访问本页（直接双击打开的 html 文件无法读取列表）。';
-            });
-    </script>
 </body>
 </html>
