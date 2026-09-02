@@ -32,7 +32,7 @@ from datetime import date, datetime, timedelta
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent.parent
-NEWS_DIR = ROOT / 'news'
+NEWS_DIR = ROOT / 'xwlb'
 IMAGES_DIR = ROOT / 'images'
 INDEX_JSON = NEWS_DIR / 'index.json'
 
@@ -220,7 +220,7 @@ ARTICLE_TEMPLATE = '''<!DOCTYPE html>
 </head>
 <body>
     <header class="topbar">
-        <a class="back" href="/">← 返回列表</a>
+        <a class="back" href="/xwlb/">← 返回列表</a>
         <div class="brand">
             <span class="brand-mark">
                 <svg viewBox="0 0 16 16" xmlns="http://www.w3.org/2000/svg">
@@ -254,7 +254,7 @@ __ITEMS__
 
         <footer class="page-footer">
             <p>内容来源：央视网《新闻联播》，版权归原作者所有，本页仅作个人学习摘要，每条均附原文链接。</p>
-            <p>本页面由脚本自动生成于 __GENERATED__ · <a href="/">返回新闻列表</a></p>
+            <p>本页面由脚本自动生成于 __GENERATED__ · <a href="/xwlb/">返回新闻列表</a></p>
         </footer>
     </main>
 </body>
@@ -279,8 +279,8 @@ def update_index(d, count, cover, items):
         'date': ds,
         'weekday': WEEKDAYS[d.weekday()],
         'count': count,
-        'cover': cover or '',
-        'url': 'news/%s.html' % ds,
+        'cover': ('/%s' % cover) if cover else '',
+        'url': 'xwlb/%s.html' % ds,
         'titles': [it['title'] for it in items[:3]],
     }
     data = [e for e in data if e.get('date') != ds]
