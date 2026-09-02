@@ -1,23 +1,75 @@
-name: Daily News
+name: daily-news
 
 on:
-  workflow_dispatch:
   schedule:
+    - cron: '0 0 * * 1-5'
+    - cron: '30 0 * * 1-5'
     - cron: '0 13 * * *'
     - cron: '0 14 * * *'
+  workflow_dispatch:
+    inputs:
+      date:
+        description: '指定日期 YYYY-MM-DD（留空 = 今天，作用于新闻联播）'
+        required: false
+        default: ''
+      days:
+        description: '回填最近 N 天（优先于 date，作用于新闻联播）'
+        required: false
+        default: ''
 
 permissions:
   contents: write
 
 jobs:
-  fetch:
+  fetch-zaocan:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-python@v5
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Setup Python
+        uses: actions/setup-python@v5
         with:
           python-version: '3.11'
-      - run: python scripts/fetch_news.py
-      - uses: stefanzweifel/git-auto-commit-action@v5
+      - name: Fetch zaocan
+        run: python scripts/fetch_zaocan.py --force
+      - name: Commit and push
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add -A
+          if git diff --cached --quiet; then
+            echo "没有新内容，跳过提交"
+          else
+            git commit -m "zaocan: 更新早参 $(date -u +%Y-%m-%d)"
+            git push
+          fi
+
+  fetch-news:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Setup Python
+        uses: actions/setup-python@v5
         with:
-          commit_message: 'daily: 新闻联播更新'
+          python-version: '3.11'
+      - name: Fetch news
+        run: |
+          ARGS=""
+          if [ -n "${{ github.event.inputs.days }}" ]; then
+            ARGS="--days ${{ github.event.inputs.days }}"
+          elif [ -n "${{ github.event.inputs.date }}" ]; then
+            ARGS="--date ${{ github.event.inputs.date }}"
+          fi
+          python scripts/fetch_news.py $ARGS
+      - name: Commit and push
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add -A
+          if git diff --cached --quiet; then
+            echo "没有新内容，跳过提交"
+          else
+            git commit -m "news: 更新 $(date -u +%Y-%m-%d)"
+            git push
+          fi
