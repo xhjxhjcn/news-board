@@ -1,0 +1,23 @@
+name: Daily News
+
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: '0 13 * * *'
+    - cron: '0 14 * * *'
+
+permissions:
+  contents: write
+
+jobs:
+  fetch:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - run: python scripts/fetch_news.py
+      - uses: stefanzweifel/git-auto-commit-action@v5
+        with:
+          commit_message: 'daily: 新闻联播更新'
