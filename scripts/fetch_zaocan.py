@@ -321,6 +321,101 @@ def cross_source_score(items):
     return extra
 
 
+# 标题党/纯感叹词：只删"突发/刚刚/大消息"这类纯情绪感叹词，
+# 保留"重挫/暴跌/跳水/大涨"等事实性动词（它们承载了涨跌信息，删了标题就不通顺）
+CLICKBAIT_WORDS = ['突发', '刚刚', '大消息', '重磅', '震惊', '沸腾', '炸锅',
+                   '疯抢', '狂飙', '暴富', '一夜', '惊天', '罕见', '史无前例',
+                   '注意了', '紧急', '速看', '一文', '猛料', '直线拉升']
+
+
+def _clean_clickbait(title):
+    """清洗标题党词与多余标点，返回更克制的标题。"""
+    t = title
+    for w in CLICKBAIT_WORDS:
+        t = t.replace(w, '')
+    # 去掉残留的孤立/连续标点与空格
+    t = re.sub(r'[，、；：]{2,}', '，', t)
+    t = re.sub(r'[！？]{2,}', '', t)
+    t = re.sub(r'[，、；：]+\s*[！？]', '', t)
+    t = re.sub(r'^[，、；：！？\s]+', '', t)
+    t = re.sub(r'[，、；：！？\s]+$', '', t)
+    t = re.sub(r'\s+', ' ', t)
+    return t if t else title
+
+
+def _core_words(title):
+    """提取标题的核心实义词（中文 2-gram），用于同事件去重。
+
+    用双字 n-gram 而非单字，保留"加息/日韩/股市/央行"等词的完整语义，
+    避免单字切分导致语义丢失和误匹配。
+    """
+    t = _clean_clickbait(title)
+    # 去数字/百分比
+    t = re.sub(r'[0-9]+(?:\.\d+)?%?', '', t)
+    # 只保留中文汉字
+    t = re.sub(r'[^\u4e00-\u9fff]', '', t)
+    # 常见停用字（单字，在 n-gram 前过滤意义不大，但去掉纯虚词组成的 gram）
+    stop2 = {'一个', '进行', '以及', '这个', '我们', '他们', '表示', '认为', '公司',
+             '集团', '股份', '有限', '对于', '关于', '通过', '其中', '目前', '已经',
+             '预计', '相关', '上述', '分别', '继续', '出现', '发布', '公告', '显示',
+             '市场', '股市', '今日', '昨日', '明日', '今年', '去年', '上半年', '下半年'}
+    grams = set()
+    for i in range(len(t) - 1):
+        g = t[i:i + 2]
+        if g in stop2:
+            continue
+        grams.add(g)
+    return grams
+
+
+# 事件主题词：同一栏目内，命中同一个"明确事件词"的多条消息视为同一事件的碎片报道，
+# 只保留最高分一条。注意：只用"明确事件词"（加息/降息/降准这类），不用泛机构词
+# （央行/证监会，因为同一机构一天可能有多件不同的事）。
+THEME_EVENTS = ['加息', '降息', '降准', '美联储', '逆回购', 'MLF', 'LPR', '国债',
+                '关税', '汇率', '油价', '金价', '退市', '立案', '爆雷', '违约']
+
+
+def _dedup_similar(items, threshold=0.45):
+    """同栏目内去重，分两层：
+    1) 精确去重：核心词（2-gram）重叠度超过阈值，视为同一事件（如重复抓取）；
+    2) 事件聚类：命中同一个"事件主题词"（如加息/降准），视为同一波行情的碎片报道。
+    两层都只保留分数最高的一条。
+    """
+    if len(items) <= 1:
+        return items
+    items = sorted(items, key=lambda x: x.get('score', 0), reverse=True)
+    kept = []
+    used_theme = set()  # 已占用的事件主题词
+    for it in items:
+        # 第一层：精确 2-gram 重叠去重
+        dup = False
+        cw = _core_words(it['title'])
+        for k in kept:
+            kw = _core_words(k['title'])
+            if not cw or not kw:
+                continue
+            inter = len(cw & kw)
+            union = len(cw | kw)
+            jac = inter / union if union else 0
+            if jac >= threshold and inter >= 2:
+                dup = True
+                break
+        if dup:
+            continue
+        # 第二层：事件主题词聚类
+        theme = None
+        for t in THEME_EVENTS:
+            if t in it['title']:
+                theme = t
+                break
+        if theme and theme in used_theme:
+            continue  # 该主题已有更高分条目，丢弃碎片
+        if theme:
+            used_theme.add(theme)
+        kept.append(it)
+    return kept
+
+
 def classify_news(items):
     """把快讯按栏目分拣，只保留重要消息（三重筛选：时间窗口 + 关键词加权 + 标红加分）。
 
@@ -357,6 +452,17 @@ def classify_news(items):
         ('住建部', '宏观要闻', 18),
         ('海关', '宏观要闻', 15),
         ('外汇', '宏观要闻', 18),
+        ('财政', '宏观要闻', 20),
+        ('预算', '宏观要闻', 20),
+        ('税收', '宏观要闻', 18),
+        ('消费', '宏观要闻', 16),
+        ('外贸', '宏观要闻', 16),
+        ('进出口', '宏观要闻', 16),
+        ('社融', '宏观要闻', 22),
+        ('信贷', '宏观要闻', 18),
+        ('利率', '宏观要闻', 20),
+        ('国债', '宏观要闻', 20),
+        ('汇率', '宏观要闻', 18),
         # 重磅公告
         ('停牌', '重磅公告', 32),
         ('复牌', '重磅公告', 32),
@@ -429,11 +535,16 @@ def classify_news(items):
         it['score'] = best_score
         buckets[best_cat].append(it)
 
-    # 每个栏目按分数降序，只保留高分（重要）消息
+    # 每个栏目按分数降序，同事件去重，再过滤低分 + 每栏最多 8 条
     for cat in buckets:
         buckets[cat].sort(key=lambda x: x.get('score', 0), reverse=True)
+        # 同事件去重（同一波行情被多家/多篇报道，只留最高分一条）
+        buckets[cat] = _dedup_similar(buckets[cat])
         # 过滤：分数太低的丢弃；每栏最多 8 条
         buckets[cat] = [x for x in buckets[cat] if x.get('score', 0) >= 18][:8]
+        # 标题党清洗（仅影响展示，不影响排序）
+        for x in buckets[cat]:
+            x['title'] = _clean_clickbait(x['title'])
     return buckets
 
 
