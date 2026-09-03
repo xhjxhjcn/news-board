@@ -1,19 +1,19 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """
-早参抓取脚本（零第三方依赖）
+新闻抓取脚本（零第三方依赖）
 数据来源：
     - 新浪财经外盘指数（美股/商品期货/外汇/全球股指）
     - 东方财富 7x24 财经快讯（含摘要、关联板块、时间）
     - 上海证券报·中国证券网 早间要闻（宏观/政策/公司）
 
 用法：
-    python scripts/fetch_zaocan.py                # 生成今天的早参
-    python scripts/fetch_zaocan.py --force        # 重新生成今天的早参
+    python scripts/fetch_zaocan.py                # 生成今天的新闻
+    python scripts/fetch_zaocan.py --force        # 重新生成今天的新闻
 
 输出：
-    index.html          早参页（即首页，今天）
-    zaocan/index.json   早参数据（供后续读取）
+    index.html          新闻页（即首页，今天）
+    zaocan/index.json   新闻数据（供后续读取）
 
 说明：
     - 幂等：当天已生成则默认跳过，重复运行无副作用
@@ -34,7 +34,7 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parent.parent
 ZAOCAN_DIR = ROOT / 'zaocan'
 INDEX_JSON = ZAOCAN_DIR / 'index.json'
-OUT_HTML = ROOT / 'index.html'   # 早参直接作为首页
+OUT_HTML = ROOT / 'index.html'   # 新闻直接作为首页
 
 UA = ('Mozilla/5.0 (Windows NT 10.0; Win64; x64) '
       'AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0 Safari/537.36')
@@ -213,7 +213,7 @@ def fetch_stcn_yaowen():
 def filter_overnight(items, now=None):
     """时间窗口过滤：只保留隔夜消息（上一交易日收盘 → 今日 08:00）。
 
-    早参目标是"开盘前速览"，只关心隔夜（A 股收盘后到今早开盘前）发生的事。
+    新闻目标是"开盘前速览"，只关心隔夜（A 股收盘后到今早开盘前）发生的事。
     东财快讯的 time 字段形如 '2026-09-01 21:35:12'。
 
     边界处理：
@@ -662,7 +662,7 @@ def render_page(d, quotes, buckets, generated):
 
     html = PAGE_TEMPLATE
     for token, value in [
-        ('__TITLE__', '%s 早参 · 徐宏江的小站' % date_cn),
+        ('__TITLE__', '%s 新闻 · 徐宏江的小站' % date_cn),
         ('__DATE_CN__', date_cn),
         ('__WEEKDAY__', weekday),
         ('__GENERATED__', generated),
@@ -680,7 +680,7 @@ PAGE_TEMPLATE = '''<!DOCTYPE html>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>__TITLE__</title>
-    <meta name="description" content="__DATE_CN__ 每日早参：隔夜外盘、宏观要闻、重磅公告、板块异动、风险提示，开盘前速览。">
+    <meta name="description" content="__DATE_CN__ 每日新闻：隔夜外盘、宏观要闻、重磅公告、板块异动、风险提示，开盘前速览。">
     <link rel="stylesheet" href="assets/style.css">
     <style>
         :root { --up: #e5484d; --down: #0f9d58; }
@@ -746,8 +746,8 @@ PAGE_TEMPLATE = '''<!DOCTYPE html>
                     <path d="M4.5 9.5 H11.5" stroke="#fff" stroke-width="1.6" stroke-linecap="round"/>
                 </svg>
             </span>
-            早参
-            <span class="brand-sub">开盘前 · 每日速览</span>
+            新闻
+            <span class="brand-sub">每日 · 资讯速览</span>
         </div>
         <a class="home" href="https://www.xhja.cn/" target="_blank" rel="noopener">徐宏江的小站 ↗</a>
     </header>
@@ -755,7 +755,7 @@ PAGE_TEMPLATE = '''<!DOCTYPE html>
     <main class="zc-wrap">
         <section class="zc-hero">
             <div class="date">__DATE_CN__ · __WEEKDAY__</div>
-            <h1>今日早参</h1>
+            <h1>今日新闻</h1>
             <div class="tip">隔夜外盘 · 宏观要闻 · 重磅公告 · 板块异动 · 风险提示，开盘前 3 分钟速览</div>
         </section>
 
@@ -796,14 +796,14 @@ def update_index(d, quotes, buckets):
 
 
 def main():
-    parser = argparse.ArgumentParser(description='早参抓取')
-    parser.add_argument('--force', action='store_true', help='重新生成今天的早参')
+    parser = argparse.ArgumentParser(description='新闻抓取')
+    parser.add_argument('--force', action='store_true', help='重新生成今天的新闻')
     args = parser.parse_args()
 
     d = date.today()
     ds = d.isoformat()
     if OUT_HTML.exists() and not args.force:
-        log('%s：早参已存在，跳过（--force 可重新生成）' % ds)
+        log('%s：新闻已存在，跳过（--force 可重新生成）' % ds)
         return
 
     log('抓取隔夜外盘指数……')
@@ -850,7 +850,7 @@ def main():
     OUT_HTML.write_text(html_text, encoding='utf-8')
     update_index(d, quotes, buckets)
 
-    log('早参生成完成：%s（外盘 %d 项，快讯 %d 条）' % (OUT_HTML.name, len(quotes), len(news)))
+    log('新闻生成完成：%s（外盘 %d 项，快讯 %d 条）' % (OUT_HTML.name, len(quotes), len(news)))
 
 
 if __name__ == '__main__':
