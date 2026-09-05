@@ -23,7 +23,9 @@
 import argparse
 import html as htmllib
 import json
+import os
 import re
+import subprocess
 import sys
 import time
 import urllib.error
@@ -339,6 +341,48 @@ def process_day(d, force=False):
     return 'ok'
 
 
+
+def ci_commit_push(max_retries=10):
+    """在 GitHub Actions 中抢先完成提交与推送（带重试）。
+
+    背景：工作流里 fetch-zaocan 与 fetch-news 两个任务并行执行、各自推送 main，
+    后推送的一方会被远端拒绝（! [rejected] main -> main），导致内容丢失、任务失败。
+    这里先对齐远端最新提交再推送，被拒则退避重试；工作流的 "Commit and push" 步骤
+    随后会发现工作区已干净而自动跳过。仅 CI 环境生效，本地运行不做任何 git 操作。
+    """
+    if os.environ.get('GITHUB_ACTIONS') != 'true':
+        return True
+    branch = os.environ.get('GITHUB_REF_NAME') or 'main'
+
+    def run(cmd):
+        return subprocess.run(cmd, shell=True, capture_output=True, text=True)
+
+    run('git config user.name "github-actions[bot]"')
+    run('git config user.email "41898282+github-actions[bot]@users.noreply.github.com"')
+
+    for attempt in range(1, max_retries + 1):
+        # 先对齐远端最新（浅克隆下 reset --soft 也能工作，不依赖共同祖先）
+        if run('git fetch --depth=100 origin %s' % branch).returncode != 0:
+            run('git fetch origin %s' % branch)
+        run('git reset --soft origin/%s' % branch)
+        run('git add -A')
+        if run('git diff --cached --quiet').returncode == 0:
+            log('没有新内容，跳过提交')
+            return True
+        stamp = datetime.now().strftime('%Y-%m-%d')
+        if run('git commit -m "news: 更新 %s"' % stamp).returncode != 0:
+            log('提交失败')
+            return False
+        if run('git push origin HEAD:%s' % branch).returncode == 0:
+            log('推送成功（第 %d 次尝试）' % attempt)
+            return True
+        log('推送被拒（远端已有新提交），第 %d 次重试……' % attempt)
+        time.sleep(attempt * 5)
+
+    log('重试 %d 次仍未推送成功' % max_retries)
+    return False
+
+
 def main():
     parser = argparse.ArgumentParser(description='新闻联播每日摘要抓取')
     parser.add_argument('--date', help='指定日期 YYYY-MM-DD（默认今天）')
@@ -373,6 +417,10 @@ def main():
 
     ok = sum(1 for r in results.values() if r == 'ok')
     log('本次运行结束：新生成 %d 篇，共处理 %d 天' % (ok, len(days)))
+
+    # 抢先提交并推送，避免与并行任务争抢分支（失败则让任务显式失败，便于排查）
+    if not ci_commit_push():
+        sys.exit(1)
 
 
 if __name__ == '__main__':
