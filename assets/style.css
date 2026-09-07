@@ -34,6 +34,7 @@ a {
     display: flex;
     align-items: center;
     justify-content: space-between;
+    flex-wrap: wrap;
     gap: 16px;
     padding: 14px 28px;
     background: rgba(255, 255, 255, 0.55);
@@ -606,7 +607,7 @@ a {
 }
 
 /* ===== 全站统一：站点互链导航 + 反馈邮箱 ===== */
-.xhja-sitenav{display:flex;flex-wrap:wrap;justify-content:center;align-items:center;gap:2px 16px;max-width:960px;margin:0 auto 16px;padding:8px 14px;font-size:13px;line-height:1.7;text-align:center;background:rgba(255,255,255,.72);border:1px solid rgba(66,144,245,.16);border-radius:14px;backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px)}
+.xhja-sitenav{display:flex;flex-wrap:wrap;justify-content:center;align-items:center;gap:2px 16px;flex:1 1 100%;max-width:960px;margin:0 auto 16px;padding:8px 14px;font-size:13px;line-height:1.7;text-align:center;background:rgba(255,255,255,.72);border:1px solid rgba(66,144,245,.16);border-radius:14px;backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px)}
 .xhja-sitenav a{color:#5a6b7b;text-decoration:none;white-space:nowrap;transition:color .15s}
 .xhja-sitenav a:hover{color:#4290f5}
 .xhja-sitenav a.cur{color:#4290f5;font-weight:600}
