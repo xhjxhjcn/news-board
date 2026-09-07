@@ -604,3 +604,19 @@ a {
         display: none;
     }
 }
+
+/* ===== 全站统一：站点互链导航 + 反馈邮箱 ===== */
+.xhja-sitenav{display:flex;flex-wrap:wrap;justify-content:center;align-items:center;gap:2px 16px;max-width:960px;margin:0 auto 16px;padding:8px 14px;font-size:13px;line-height:1.7;text-align:center;background:rgba(255,255,255,.72);border:1px solid rgba(66,144,245,.16);border-radius:14px;backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px)}
+.xhja-sitenav a{color:#5a6b7b;text-decoration:none;white-space:nowrap;transition:color .15s}
+.xhja-sitenav a:hover{color:#4290f5}
+.xhja-sitenav a.cur{color:#4290f5;font-weight:600}
+.xhja-feedback{margin-top:10px;font-size:13px;color:#6b7b8b}
+.xhja-feedback a{color:#4290f5;text-decoration:none;font-weight:600}
+.xhja-feedback a:hover{text-decoration:underline}
+@media (prefers-color-scheme: dark){
+  .xhja-sitenav{background:rgba(31,33,48,.72);border-color:rgba(255,255,255,.12)}
+  .xhja-sitenav a{color:#a6a9bd}
+  .xhja-sitenav a.cur{color:#7ec8f5}
+  .xhja-feedback{color:#8b8ea3}
+  .xhja-feedback a{color:#7ec8f5}
+}
