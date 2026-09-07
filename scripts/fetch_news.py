@@ -235,6 +235,14 @@ ARTICLE_TEMPLATE = '''<!DOCTYPE html>
         </div>
         <a class="home" href="https://www.xhja.cn/" target="_blank" rel="noopener">徐宏江的小站 ↗</a>
     </header>
+    <nav class="xhja-sitenav">
+      <a href="https://xhja.cn">🏠 主页</a>
+      <a href="https://tools.xhja.cn">🧰 结构工具</a>
+      <a href="https://box.xhja.cn">📦 在线工具箱</a>
+      <a href="https://news.xhja.cn" class="cur">📰 每日资讯</a>
+      <a href="https://blog.xhja.cn">📝 博客</a>
+      <a href="https://soft.xhja.cn">💿 软件库</a>
+    </nav>
 
     <main class="article-main">
         <section class="article-hero">
@@ -257,6 +265,7 @@ __ITEMS__
         <footer class="page-footer">
             <p>内容来源：央视网《新闻联播》，版权归原作者所有，本页仅作个人学习摘要，每条均附原文链接。</p>
             <p>本页面由脚本自动生成于 __GENERATED__ · <a href="/xwlb/">返回新闻列表</a></p>
+        <div class="xhja-feedback">如有任何建议，欢迎发送邮件至 <a href="mailto:xhj@xhja.cn">xhj@xhja.cn</a> 反馈</div>
         </footer>
     </main>
 </body>
