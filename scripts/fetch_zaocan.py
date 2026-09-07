@@ -753,6 +753,14 @@ PAGE_TEMPLATE = '''<!DOCTYPE html>
         </div>
         <a class="home" href="https://www.xhja.cn/" target="_blank" rel="noopener">徐宏江的小站 ↗</a>
     </header>
+    <nav class="xhja-sitenav">
+      <a href="https://xhja.cn">🏠 主页</a>
+      <a href="https://tools.xhja.cn">🧰 结构工具</a>
+      <a href="https://box.xhja.cn">📦 在线工具箱</a>
+      <a href="https://news.xhja.cn" class="cur">📰 每日资讯</a>
+      <a href="https://blog.xhja.cn">📝 博客</a>
+      <a href="https://soft.xhja.cn">💿 软件库</a>
+    </nav>
 
     <main class="zc-wrap">
         <section class="zc-hero">
@@ -773,6 +781,7 @@ __SECTIONS__
         <footer class="zc-footer">
             <p>数据来源：东方财富网、证券时报、上海证券报·中国证券网等公开信息，版权归原作者所有，本页仅作个人投资参考，不构成任何投资建议。</p>
             <p>本页由脚本自动生成于 __GENERATED__ · 每日 08:00 更新 · <a href="/xwlb/">查看新闻联播</a></p>
+        <div class="xhja-feedback">如有任何建议，欢迎发送邮件至 <a href="mailto:xhj@xhja.cn">xhj@xhja.cn</a> 反馈</div>
         </footer>
     </main>
 </body>
