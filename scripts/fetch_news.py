@@ -234,15 +234,15 @@ ARTICLE_TEMPLATE = '''<!DOCTYPE html>
             新闻资讯
         </div>
         <a class="home" href="https://www.xhja.cn/" target="_blank" rel="noopener">徐宏江的小站 ↗</a>
-    </header>
-    <nav class="xhja-sitenav">
+      <nav class="xhja-sitenav">
       <a href="https://xhja.cn">🏠 主页</a>
       <a href="https://tools.xhja.cn">🧰 结构工具</a>
-      <a href="https://box.xhja.cn">📦 在线工具箱</a>
+      <a href="https://box.xhja.cn">📦 小工具箱</a>
       <a href="https://news.xhja.cn" class="cur">📰 每日资讯</a>
       <a href="https://blog.xhja.cn">📝 博客</a>
       <a href="https://soft.xhja.cn">💿 软件库</a>
     </nav>
+    </header>
 
     <main class="article-main">
         <section class="article-hero">
