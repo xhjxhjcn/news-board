@@ -607,9 +607,10 @@ a {
 }
 
 /* ===== 全站统一：站点互链导航 + 反馈邮箱 ===== */
-.xhja-sitenav{display:flex;flex-wrap:wrap;justify-content:center;align-items:center;row-gap:4px;flex:1 1 100%;max-width:1000px;margin:2px auto 0;font-size:13px;line-height:1.9;text-align:center}
+.xhja-sitenav{display:flex;flex-wrap:wrap;justify-content:flex-end;align-items:center;row-gap:2px;margin-left:auto;font-size:13px;line-height:1.9;text-align:right}
 .xhja-sitenav a{color:#5a6b7b;text-decoration:none;white-space:nowrap;transition:color .15s}
 .xhja-sitenav a + a::before{content:"丨";color:inherit;opacity:.4;margin:0 12px;font-weight:400}
+@media (max-width:820px){.xhja-sitenav{font-size:12.5px}.xhja-sitenav a + a::before{margin:0 8px}}
 .xhja-sitenav a:hover{color:#4290f5}
 .xhja-sitenav a.cur{color:#4290f5;font-weight:600}
 .xhja-feedback{margin-top:10px;font-size:13px;color:#6b7b8b}
