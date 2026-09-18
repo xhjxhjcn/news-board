@@ -623,3 +623,11 @@ a {
   .xhja-feedback{color:#8b8ea3}
   .xhja-feedback a{color:#7ec8f5}
 }
+
+/* ===== 全站统一：备案号 ===== */
+.xhja-icp{margin-top:10px;font-size:12.5px;line-height:1.8;color:#8a97a3;text-align:center}
+.xhja-icp a{display:inline-flex;align-items:center;gap:6px;color:inherit;text-decoration:none}
+.xhja-icp a:hover{color:#4290f5;text-decoration:underline}
+.xhja-icp svg{width:14px;height:14px;flex:0 0 auto;opacity:.85}
+.xhja-icp a:hover svg{opacity:1}
+@media (prefers-color-scheme:dark){.xhja-icp{color:#8b8ea3}.xhja-icp a:hover{color:#7ec8f5}}

@@ -1,0 +1,13 @@
+// 阿里云 ESA「函数和 Pages」项目配置
+// 纯静态站：产物即仓库根目录（index.html / xwlb/ / assets/ / images/）
+// 页面由 GitHub Actions（.github/workflows/daily-news.yml）每日生成并提交，
+// 推送 main 后由 ESA 自动重新部署。
+{
+  "name": "news-board",
+  "installCommand": "",
+  "buildCommand": "echo 'static site, no build step'",
+  "assets": {
+    "directory": "./",
+    "notFoundStrategy": "404Page"
+  }
+}
