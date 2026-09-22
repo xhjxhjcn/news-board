@@ -633,7 +633,7 @@ a {
   font-size:13px;line-height:1.6;color:#6b7b8b}
 .xhja-mail a{display:inline-flex;align-items:center;gap:8px;color:#4290f5;font-weight:600;
   text-decoration:none}
-.xhja-mail img{height:20px;width:auto;display:block;opacity:.9;transition:opacity .2s}
+.xhja-mail img{height:22px;width:auto;display:block;opacity:.9;transition:opacity .2s}
 .xhja-mail a:hover{text-decoration:underline}
 .xhja-mail a:hover img{opacity:1}
 .xhja-icp{margin-top:10px;display:flex;flex-wrap:wrap;align-items:center;justify-content:center;
