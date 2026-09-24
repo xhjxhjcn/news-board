@@ -23,9 +23,7 @@
 import argparse
 import html as htmllib
 import json
-import os
 import re
-import subprocess
 import sys
 import time
 import urllib.error
@@ -218,16 +216,12 @@ ARTICLE_TEMPLATE = '''<!DOCTYPE html>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>__TITLE__</title>
     <meta name="description" content="__DATE_CN__《新闻联播》主要内容图文摘要，共 __COUNT__ 条，来源央视网。">
-    <link rel="icon" href="../assets/favicon.ico" sizes="any">
-<link rel="icon" type="image/png" href="../assets/favicon-32.png" sizes="32x32">
-<link rel="icon" type="image/png" href="../assets/favicon-192.png" sizes="192x192">
-<link rel="apple-touch-icon" href="../assets/apple-touch-icon.png">
-<link rel="stylesheet" href="../assets/style.css">
+    <link rel="stylesheet" href="../assets/style.css">
 </head>
 <body>
     <header class="topbar">
         <a class="back" href="/xwlb/">← 返回列表</a>
-        <a class="brand" href="https://www.xhja.cn" aria-label="徐宏江的小站">
+        <div class="brand">
             <span class="brand-mark">
                 <svg viewBox="0 0 16 16" xmlns="http://www.w3.org/2000/svg">
                     <rect x="1" y="3" width="14" height="10" rx="2"></rect>
@@ -236,16 +230,8 @@ ARTICLE_TEMPLATE = '''<!DOCTYPE html>
                 </svg>
             </span>
             新闻资讯
-        </a>
+        </div>
         <a class="home" href="https://www.xhja.cn/" target="_blank" rel="noopener">徐宏江的小站 ↗</a>
-      <nav class="xhja-sitenav">
-      <a href="https://xhja.cn">🏠 主页</a>
-      <a href="https://tools.xhja.cn">🧰 结构工具</a>
-      <a href="https://box.xhja.cn">📦 小工具箱</a>
-      <a href="https://news.xhja.cn" class="cur">📰 每日资讯</a>
-      <a href="https://blog.xhja.cn">📝 博客</a>
-      <a href="https://soft.xhja.cn">💿 软件库</a>
-    </nav>
     </header>
 
     <main class="article-main">
@@ -268,12 +254,10 @@ __ITEMS__
 
         <footer class="page-footer">
             <p>内容来源：央视网《新闻联播》，版权归原作者所有，本页仅作个人学习摘要，每条均附原文链接。</p>
-            <p>本页面由脚本自动生成于 __GENERATED__ · <a href="/xwlb/">返回新闻列表</a></p>        
-            <div class="xhja-mail"><a href="mailto:x@xhja.cn">📧 联系我：x@xhja.cn</a></div>
-            <div class="xhja-icp"><a href="https://beian.miit.gov.cn/" target="_blank" rel="noopener noreferrer"><svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true" focusable="false"><path fill="currentColor" d="M12 1.75 3.9 5.2v6.4c0 4.9 3.4 9.6 8.1 10.8 4.7-1.2 8.1-5.9 8.1-10.8V5.2L12 1.75Zm-1.2 14.6-3.7-3.7 1.5-1.5 2.2 2.2 5.3-5.3 1.5 1.5-6.8 6.8Z"/></svg><span>浙ICP备2026078012号</span></a><span class="sep">|</span><a href="https://beian.mps.gov.cn/#/query/webSearch?code=33082502000463" target="_blank" rel="noopener noreferrer"><svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true" focusable="false"><path fill="currentColor" fill-rule="evenodd" d="M12 1.75 3.9 5.2v6.4c0 4.9 3.4 9.6 8.1 10.8 4.7-1.2 8.1-5.9 8.1-10.8V5.2L12 1.75Z M12 7 L13.6 9.9 L15.8 10.2 L14.1 12.2 L12.9 14.6 L12 12.5 L11.1 14.6 L9.9 12.2 L8.2 10.2 L10.4 9.9 Z"/></svg><span>浙公网安备33082502000463号</span></a></div>
-            <p>© 2026 徐宏江的小站 · All Rights Reserved</p>
-</footer>
+            <p>本页面由脚本自动生成于 __GENERATED__ · <a href="/xwlb/">返回新闻列表</a></p>
+        </footer>
     </main>
+    <script defer src="https://api.xhja.cn/stats.js?site=news"></script>
 </body>
 </html>
 '''
@@ -356,48 +340,6 @@ def process_day(d, force=False):
     return 'ok'
 
 
-
-def ci_commit_push(max_retries=10):
-    """在 GitHub Actions 中抢先完成提交与推送（带重试）。
-
-    背景：工作流里 fetch-zaocan 与 fetch-news 两个任务并行执行、各自推送 main，
-    后推送的一方会被远端拒绝（! [rejected] main -> main），导致内容丢失、任务失败。
-    这里先对齐远端最新提交再推送，被拒则退避重试；工作流的 "Commit and push" 步骤
-    随后会发现工作区已干净而自动跳过。仅 CI 环境生效，本地运行不做任何 git 操作。
-    """
-    if os.environ.get('GITHUB_ACTIONS') != 'true':
-        return True
-    branch = os.environ.get('GITHUB_REF_NAME') or 'main'
-
-    def run(cmd):
-        return subprocess.run(cmd, shell=True, capture_output=True, text=True)
-
-    run('git config user.name "github-actions[bot]"')
-    run('git config user.email "41898282+github-actions[bot]@users.noreply.github.com"')
-
-    for attempt in range(1, max_retries + 1):
-        # 先对齐远端最新（浅克隆下 reset --soft 也能工作，不依赖共同祖先）
-        if run('git fetch --depth=100 origin %s' % branch).returncode != 0:
-            run('git fetch origin %s' % branch)
-        run('git reset --soft origin/%s' % branch)
-        run('git add -A')
-        if run('git diff --cached --quiet').returncode == 0:
-            log('没有新内容，跳过提交')
-            return True
-        stamp = datetime.now().strftime('%Y-%m-%d')
-        if run('git commit -m "news: 更新 %s"' % stamp).returncode != 0:
-            log('提交失败')
-            return False
-        if run('git push origin HEAD:%s' % branch).returncode == 0:
-            log('推送成功（第 %d 次尝试）' % attempt)
-            return True
-        log('推送被拒（远端已有新提交），第 %d 次重试……' % attempt)
-        time.sleep(attempt * 5)
-
-    log('重试 %d 次仍未推送成功' % max_retries)
-    return False
-
-
 def main():
     parser = argparse.ArgumentParser(description='新闻联播每日摘要抓取')
     parser.add_argument('--date', help='指定日期 YYYY-MM-DD（默认今天）')
@@ -432,10 +374,6 @@ def main():
 
     ok = sum(1 for r in results.values() if r == 'ok')
     log('本次运行结束：新生成 %d 篇，共处理 %d 天' % (ok, len(days)))
-
-    # 抢先提交并推送，避免与并行任务争抢分支（失败则让任务显式失败，便于排查）
-    if not ci_commit_push():
-        sys.exit(1)
 
 
 if __name__ == '__main__':

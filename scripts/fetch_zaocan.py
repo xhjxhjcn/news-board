@@ -1,19 +1,19 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """
-新闻抓取脚本（零第三方依赖）
+早参抓取脚本（零第三方依赖）
 数据来源：
     - 新浪财经外盘指数（美股/商品期货/外汇/全球股指）
     - 东方财富 7x24 财经快讯（含摘要、关联板块、时间）
     - 上海证券报·中国证券网 早间要闻（宏观/政策/公司）
 
 用法：
-    python scripts/fetch_zaocan.py                # 生成今天的新闻
-    python scripts/fetch_zaocan.py --force        # 重新生成今天的新闻
+    python scripts/fetch_zaocan.py                # 生成今天的早参
+    python scripts/fetch_zaocan.py --force        # 重新生成今天的早参
 
 输出：
-    index.html          新闻页（即首页，今天）
-    zaocan/index.json   新闻数据（供后续读取）
+    index.html          早参页（即首页，今天）
+    zaocan/index.json   早参数据（供后续读取）
 
 说明：
     - 幂等：当天已生成则默认跳过，重复运行无副作用
@@ -23,9 +23,7 @@
 import argparse
 import html as htmllib
 import json
-import os
 import re
-import subprocess
 import sys
 import time
 import urllib.error
@@ -36,7 +34,7 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parent.parent
 ZAOCAN_DIR = ROOT / 'zaocan'
 INDEX_JSON = ZAOCAN_DIR / 'index.json'
-OUT_HTML = ROOT / 'index.html'   # 新闻直接作为首页
+OUT_HTML = ROOT / 'index.html'   # 早参直接作为首页
 
 UA = ('Mozilla/5.0 (Windows NT 10.0; Win64; x64) '
       'AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0 Safari/537.36')
@@ -215,7 +213,7 @@ def fetch_stcn_yaowen():
 def filter_overnight(items, now=None):
     """时间窗口过滤：只保留隔夜消息（上一交易日收盘 → 今日 08:00）。
 
-    新闻目标是"开盘前速览"，只关心隔夜（A 股收盘后到今早开盘前）发生的事。
+    早参目标是"开盘前速览"，只关心隔夜（A 股收盘后到今早开盘前）发生的事。
     东财快讯的 time 字段形如 '2026-09-01 21:35:12'。
 
     边界处理：
@@ -683,11 +681,7 @@ PAGE_TEMPLATE = '''<!DOCTYPE html>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>__TITLE__</title>
     <meta name="description" content="__DATE_CN__ 每日新闻：隔夜外盘、宏观要闻、重磅公告、板块异动、风险提示，开盘前速览。">
-    <link rel="icon" href="assets/favicon.ico" sizes="any">
-<link rel="icon" type="image/png" href="assets/favicon-32.png" sizes="32x32">
-<link rel="icon" type="image/png" href="assets/favicon-192.png" sizes="192x192">
-<link rel="apple-touch-icon" href="assets/apple-touch-icon.png">
-<link rel="stylesheet" href="assets/style.css">
+    <link rel="stylesheet" href="assets/style.css">
     <style>
         :root { --up: #e5484d; --down: #0f9d58; }
         .zc-wrap { max-width: 760px; margin: 0 auto; padding: 0 16px 40px; }
@@ -745,7 +739,7 @@ PAGE_TEMPLATE = '''<!DOCTYPE html>
 </head>
 <body>
     <header class="topbar">
-        <a class="brand" href="https://www.xhja.cn" aria-label="徐宏江的小站">
+        <div class="brand">
             <span class="brand-mark">
                 <svg viewBox="0 0 16 16" xmlns="http://www.w3.org/2000/svg">
                     <path d="M2 13 L8 2 L14 13" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
@@ -753,17 +747,9 @@ PAGE_TEMPLATE = '''<!DOCTYPE html>
                 </svg>
             </span>
             新闻
-            <span class="brand-sub">每日 · 资讯速览</span>
-        </a>
+            <span class="brand-sub">开盘前 · 每日速览</span>
+        </div>
         <a class="home" href="https://www.xhja.cn/" target="_blank" rel="noopener">徐宏江的小站 ↗</a>
-      <nav class="xhja-sitenav">
-      <a href="https://xhja.cn">🏠 主页</a>
-      <a href="https://tools.xhja.cn">🧰 结构工具</a>
-      <a href="https://box.xhja.cn">📦 小工具箱</a>
-      <a href="https://news.xhja.cn" class="cur">📰 每日资讯</a>
-      <a href="https://blog.xhja.cn">📝 博客</a>
-      <a href="https://soft.xhja.cn">💿 软件库</a>
-    </nav>
     </header>
 
     <main class="zc-wrap">
@@ -784,12 +770,10 @@ __SECTIONS__
 
         <footer class="zc-footer">
             <p>数据来源：东方财富网、证券时报、上海证券报·中国证券网等公开信息，版权归原作者所有，本页仅作个人投资参考，不构成任何投资建议。</p>
-            <p>本页由脚本自动生成于 __GENERATED__ · 每日 08:00 更新 · <a href="/xwlb/">查看新闻联播</a></p>        
-            <div class="xhja-mail"><a href="mailto:x@xhja.cn">📧 联系我：x@xhja.cn</a></div>
-            <div class="xhja-icp"><a href="https://beian.miit.gov.cn/" target="_blank" rel="noopener noreferrer"><svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true" focusable="false"><path fill="currentColor" d="M12 1.75 3.9 5.2v6.4c0 4.9 3.4 9.6 8.1 10.8 4.7-1.2 8.1-5.9 8.1-10.8V5.2L12 1.75Zm-1.2 14.6-3.7-3.7 1.5-1.5 2.2 2.2 5.3-5.3 1.5 1.5-6.8 6.8Z"/></svg><span>浙ICP备2026078012号</span></a><span class="sep">|</span><a href="https://beian.mps.gov.cn/#/query/webSearch?code=33082502000463" target="_blank" rel="noopener noreferrer"><svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true" focusable="false"><path fill="currentColor" fill-rule="evenodd" d="M12 1.75 3.9 5.2v6.4c0 4.9 3.4 9.6 8.1 10.8 4.7-1.2 8.1-5.9 8.1-10.8V5.2L12 1.75Z M12 7 L13.6 9.9 L15.8 10.2 L14.1 12.2 L12.9 14.6 L12 12.5 L11.1 14.6 L9.9 12.2 L8.2 10.2 L10.4 9.9 Z"/></svg><span>浙公网安备33082502000463号</span></a></div>
-            <p>© 2026 徐宏江的小站 · All Rights Reserved</p>
-</footer>
+            <p>本页由脚本自动生成于 __GENERATED__ · 每日 08:00 更新 · <a href="/xwlb/">查看新闻联播</a></p>
+        </footer>
     </main>
+    <script defer src="https://api.xhja.cn/stats.js?site=news"></script>
 </body>
 </html>
 '''
@@ -812,56 +796,15 @@ def update_index(d, quotes, buckets):
     INDEX_JSON.write_text(json.dumps(entry, ensure_ascii=False, indent=2) + '\n', encoding='utf-8')
 
 
-
-def ci_commit_push(max_retries=10):
-    """在 GitHub Actions 中抢先完成提交与推送（带重试）。
-
-    背景：工作流里 fetch-zaocan 与 fetch-news 两个任务并行执行、各自推送 main，
-    后推送的一方会被远端拒绝（! [rejected] main -> main），导致内容丢失、任务失败。
-    这里先对齐远端最新提交再推送，被拒则退避重试；工作流的 "Commit and push" 步骤
-    随后会发现工作区已干净而自动跳过。仅 CI 环境生效，本地运行不做任何 git 操作。
-    """
-    if os.environ.get('GITHUB_ACTIONS') != 'true':
-        return True
-    branch = os.environ.get('GITHUB_REF_NAME') or 'main'
-
-    def run(cmd):
-        return subprocess.run(cmd, shell=True, capture_output=True, text=True)
-
-    run('git config user.name "github-actions[bot]"')
-    run('git config user.email "41898282+github-actions[bot]@users.noreply.github.com"')
-
-    for attempt in range(1, max_retries + 1):
-        if run('git fetch --depth=100 origin %s' % branch).returncode != 0:
-            run('git fetch origin %s' % branch)
-        run('git reset --soft origin/%s' % branch)
-        run('git add -A')
-        if run('git diff --cached --quiet').returncode == 0:
-            log('没有新内容，跳过提交')
-            return True
-        stamp = datetime.now().strftime('%Y-%m-%d')
-        if run('git commit -m "zaocan: 更新早参 %s"' % stamp).returncode != 0:
-            log('提交失败')
-            return False
-        if run('git push origin HEAD:%s' % branch).returncode == 0:
-            log('推送成功（第 %d 次尝试）' % attempt)
-            return True
-        log('推送被拒（远端已有新提交），第 %d 次重试……' % attempt)
-        time.sleep(attempt * 5)
-
-    log('重试 %d 次仍未推送成功' % max_retries)
-    return False
-
-
 def main():
-    parser = argparse.ArgumentParser(description='新闻抓取')
-    parser.add_argument('--force', action='store_true', help='重新生成今天的新闻')
+    parser = argparse.ArgumentParser(description='早参抓取')
+    parser.add_argument('--force', action='store_true', help='重新生成今天的早参')
     args = parser.parse_args()
 
     d = date.today()
     ds = d.isoformat()
     if OUT_HTML.exists() and not args.force:
-        log('%s：新闻已存在，跳过（--force 可重新生成）' % ds)
+        log('%s：早参已存在，跳过（--force 可重新生成）' % ds)
         return
 
     log('抓取隔夜外盘指数……')
@@ -908,11 +851,7 @@ def main():
     OUT_HTML.write_text(html_text, encoding='utf-8')
     update_index(d, quotes, buckets)
 
-    log('新闻生成完成：%s（外盘 %d 项，快讯 %d 条）' % (OUT_HTML.name, len(quotes), len(news)))
-
-    # 抢先提交并推送，避免与并行任务争抢分支（失败则让任务显式失败，便于排查）
-    if not ci_commit_push():
-        sys.exit(1)
+    log('早参生成完成：%s（外盘 %d 项，快讯 %d 条）' % (OUT_HTML.name, len(quotes), len(news)))
 
 
 if __name__ == '__main__':
