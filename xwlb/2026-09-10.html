@@ -12,27 +12,35 @@
 <link rel="apple-touch-icon" href="../assets/apple-touch-icon.png">
 </head>
 <body>
-    <header class="topbar">
-        <a class="back" href="/xwlb/">← 返回列表</a>
-        <a class="brand" href="https://www.xhja.cn" aria-label="徐宏江的小站">
-            <span class="brand-mark">
-                <svg viewBox="0 0 16 16" xmlns="http://www.w3.org/2000/svg">
-                    <rect x="1" y="3" width="14" height="10" rx="2"></rect>
-                    <path d="M6 13h4v2H6z" opacity="0.7"></path>
-                    <path d="M5 6.2v3.6l3.2-1.8z" fill="#fff"></path>
-                </svg>
-            </span>
-            新闻资讯
-        </a>
-        <a class="home" href="https://www.xhja.cn/" target="_blank" rel="noopener">徐宏江的小站 ↗</a>
-      <nav class="xhja-sitenav">
-      <a href="https://xhja.cn">🏠 主页</a>
-      <a href="https://tools.xhja.cn">🧰 结构工具</a>
-      <a href="https://box.xhja.cn">📦 小工具箱</a>
-      <a href="https://news.xhja.cn" class="cur">📰 每日资讯</a>
-      <a href="https://blog.xhja.cn">📝 博客</a>
-      <a href="https://soft.xhja.cn">💿 软件库</a>
-    </nav>
+    <header class="site-header">
+        <div class="header-inner">
+            <a class="brand" href="/" aria-label="回到今日新闻">
+                <img src="/assets/logo.png" alt="行恒简安" class="brand-logo">
+                <div class="brand-text">
+                    <span class="brand-name">行恒简安</span>
+                    <span class="brand-slogan">行恒致远 · 简安自得</span>
+                </div>
+            </a>
+            <nav class="header-nav">
+        <a href="/">今日新闻</a>
+        <a href="/xwlb/">新闻联播</a>
+        <a href="https://hot.xhja.cn/" target="_blank" rel="noopener">今日热榜</a>
+        <a href="https://tools.xhja.cn/" target="_blank" rel="noopener">工具站</a>
+        <a href="https://www.xhja.cn/" target="_blank" rel="noopener">主页</a>
+            </nav>
+            <div class="header-actions">
+                <div class="clock">
+                    <div class="clock-main">
+                        <span class="clock-hm" data-clock-hm>--:--</span>
+                        <span class="clock-sec" data-clock-sec>--</span>
+                    </div>
+                    <span class="clock-divider" aria-hidden="true"></span>
+                    <div class="clock-meta">
+                        <span class="clock-ymd" data-clock-ymd>----/--</span>
+                    </div>
+                </div>
+            </div>
+        </div>
     </header>
 
     <main class="article-main">
@@ -67,13 +75,50 @@
 <article class="news-card"><div class="news-media"><span class="news-no">15</span><img src="../images/2026-09-10/img15.jpg" alt="国际联播快讯" loading="lazy"></div><div class="news-body"><h2 class="news-title"><a href="https://tv.cctv.com/2026/09/10/VIDEBgGxryAhms0C69mUqY10260910.shtml" target="_blank" rel="noopener">国际联播快讯</a></h2><div class="news-meta"><span class="dur">时长 00:01:58</span><a href="https://tv.cctv.com/2026/09/10/VIDEBgGxryAhms0C69mUqY10260910.shtml" target="_blank" rel="noopener">查看央视原视频 ↗</a></div><p class="news-lead">沙特与胡塞武装打击对方目标</p></div></article>
         </section>
 
-        <footer class="page-footer">
-            <p>内容来源：央视网《新闻联播》，版权归原作者所有，本页仅作个人学习摘要，每条均附原文链接。</p>
-            <p>本页面由脚本自动生成于 2026-09-10 14:08 · <a href="/xwlb/">返回新闻列表</a></p>        
-            <div class="xhja-mail"><a href="mailto:x@xhja.cn">📧 联系我：x@xhja.cn</a></div>
-            <div class="xhja-icp"><a href="https://beian.miit.gov.cn/" target="_blank" rel="noopener noreferrer"><svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true" focusable="false"><path fill="currentColor" d="M12 1.75 3.9 5.2v6.4c0 4.9 3.4 9.6 8.1 10.8 4.7-1.2 8.1-5.9 8.1-10.8V5.2L12 1.75Zm-1.2 14.6-3.7-3.7 1.5-1.5 2.2 2.2 5.3-5.3 1.5 1.5-6.8 6.8Z"/></svg><span>浙ICP备2026078012号</span></a><span class="sep">|</span><a href="https://beian.mps.gov.cn/#/query/webSearch?code=33082502000463" target="_blank" rel="noopener noreferrer"><svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true" focusable="false"><path fill="currentColor" fill-rule="evenodd" d="M12 1.75 3.9 5.2v6.4c0 4.9 3.4 9.6 8.1 10.8 4.7-1.2 8.1-5.9 8.1-10.8V5.2L12 1.75Z M12 7 L13.6 9.9 L15.8 10.2 L14.1 12.2 L12.9 14.6 L12 12.5 L11.1 14.6 L9.9 12.2 L8.2 10.2 L10.4 9.9 Z"/></svg><span>浙公网安备33082502000463号</span></a></div>
-            <p>© 2026 徐宏江的小站 · All Rights Reserved</p>
-</footer>
     </main>
+
+    <footer class="site-footer">
+        <div class="footer-inner">
+            <div class="footer-note">内容来源：央视网《新闻联播》，版权归原作者所有，本页仅作个人学习摘要，每条均附原文链接。</div>
+            <div class="footer-brand">
+                <img src="/assets/logo.png" alt="" class="footer-logo">
+                <div>
+                    <div class="footer-name">行恒简安</div>
+                    <div class="footer-slogan">行恒致远 · 简安自得</div>
+                </div>
+            </div>
+            <div class="footer-links">
+            <a href="/">今日新闻</a>
+            <a href="/xwlb/">新闻联播</a>
+            <a href="https://hot.xhja.cn/" target="_blank" rel="noopener">今日热榜</a>
+            <a href="https://tools.xhja.cn/" target="_blank" rel="noopener">工具站</a>
+            <a href="https://www.xhja.cn/" target="_blank" rel="noopener">主页</a>
+            </div>
+            <div class="xhja-mail"><a href="mailto:x@xhja.cn">📧 联系我：x@xhja.cn</a></div>
+            <div class="footer-copy">© 2026 行恒简安 · All Rights Reserved</div>
+            <div class="xhja-icp">
+                <a href="https://beian.miit.gov.cn/" target="_blank" rel="noopener">浙ICP备2026078012号</a>
+            </div>
+            <div class="footer-gen">本页面由脚本自动生成于 2026-09-10 14:08 · <a href="/xwlb/">返回新闻列表</a></div>
+        </div>
+    </footer>
+
+    <script>(function () {
+  var WEEK = ['日', '一', '二', '三', '四', '五', '六'];
+  function pad(n) { return n < 10 ? '0' + n : '' + n; }
+  function tick() {
+    var d = new Date();
+    var s = [pad(d.getHours()) + ':' + pad(d.getMinutes()), pad(d.getSeconds()),
+             (d.getMonth() + 1) + '/' + d.getDate() + ' 周' + WEEK[d.getDay()]];
+    var sel = ['[data-clock-hm]', '[data-clock-sec]', '[data-clock-ymd]'];
+    for (var i = 0; i < sel.length; i++) {
+      var el = document.querySelector(sel[i]);
+      if (el && el.textContent !== s[i]) el.textContent = s[i];
+    }
+  }
+  tick();
+  setInterval(tick, 1000);
+})();</script>
+    <script defer src="https://api.xhja.cn/stats.js?site=news"></script>
 </body>
 </html>
