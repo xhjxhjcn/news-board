@@ -25,82 +25,177 @@ a {
     display: none !important;
 }
 
-/* ---------- 顶栏 ---------- */
+/* ---------- 顶栏（与 www.xhja.cn 统一） ---------- */
 
-.topbar {
+:root {
+    --nb-text: #2c3e50;
+    --nb-text-secondary: #5a6b7c;
+    --nb-text-muted: #8a97a3;
+    --nb-border: rgba(148, 163, 184, 0.22);
+    --nb-border-strong: rgba(66, 144, 245, 0.35);
+    --nb-primary: #4290f5;
+    --nb-primary-dark: #2563eb;
+    --nb-shadow: 0 4px 24px rgba(15, 23, 42, 0.06);
+}
+
+.site-header {
     position: sticky;
     top: 0;
-    z-index: 20;
+    left: 0;
+    right: 0;
+    z-index: 100;
+    height: 76px;
+    background: linear-gradient(180deg, rgba(238, 244, 253, 0.85) 0%, rgba(231, 239, 251, 0.62) 100%);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border-bottom: 1px solid var(--nb-border);
+}
+
+.site-header::after {
+    content: '';
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: -1px;
+    height: 1px;
+    background: linear-gradient(90deg, transparent, var(--nb-primary), var(--nb-primary-dark), transparent);
+    opacity: 0.65;
+}
+
+.header-inner {
+    max-width: 1240px;
+    height: 100%;
+    margin: 0 auto;
+    padding: 0 24px;
     display: flex;
     align-items: center;
     justify-content: space-between;
-    flex-wrap: wrap;
-    gap: 16px;
-    padding: 14px 28px;
-    background: rgba(255, 255, 255, 0.55);
-    backdrop-filter: blur(12px);
-    -webkit-backdrop-filter: blur(12px);
-    border-bottom: 1px solid rgba(255, 255, 255, 0.65);
+    gap: 24px;
 }
 
-.topbar .brand {
-    font-size: 19px;
-    font-weight: 700;
+.brand {
     display: flex;
     align-items: center;
-    gap: 10px;
-    color: #2c3e50;
+    gap: 14px;
+    flex-shrink: 0;
+    text-decoration: none;
 }
 
-.brand-mark {
-    width: 30px;
-    height: 30px;
-    border-radius: 9px;
-    background: rgba(66, 144, 245, 0.85);
-    display: inline-flex;
+.brand-logo {
+    width: 42px;
+    height: 42px;
+    object-fit: contain;
+    filter: drop-shadow(0 2px 6px rgba(66, 144, 245, 0.25));
+}
+
+.brand-text {
+    display: flex;
+    flex-direction: column;
+    line-height: 1.25;
+}
+
+.brand-name {
+    font-size: 19px;
+    font-weight: 800;
+    letter-spacing: 1px;
+    color: var(--nb-text);
+}
+
+.brand-slogan {
+    font-size: 11px;
+    color: var(--nb-text-secondary);
+    letter-spacing: 1.5px;
+}
+
+.header-nav {
+    display: flex;
     align-items: center;
-    justify-content: center;
+    gap: 8px;
+}
+
+.header-nav a {
+    padding: 8px 16px;
+    border-radius: 8px;
+    font-size: 14px;
+    font-weight: 500;
+    color: var(--nb-text-secondary);
+    text-decoration: none;
+    white-space: nowrap;
+    transition: all 0.25s ease;
+}
+
+.header-nav a:hover {
+    color: var(--nb-primary-dark);
+    background: rgba(66, 144, 245, 0.08);
+}
+
+.header-nav a.cur {
+    color: var(--nb-primary-dark);
+    background: rgba(66, 144, 245, 0.12);
+    font-weight: 600;
+}
+
+.header-actions {
+    display: flex;
+    align-items: center;
+    gap: 12px;
     flex-shrink: 0;
 }
 
-.brand-mark svg {
-    width: 16px;
-    height: 16px;
-    fill: #fff;
+/* ---------- 顶栏时钟 ---------- */
+
+.clock {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 6px 16px;
+    border-radius: 14px;
+    background: rgba(244, 249, 255, 0.62);
+    border: 1px solid var(--nb-border);
+    box-shadow: var(--nb-shadow);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
 }
 
-.brand-sub {
+.clock-main {
+    display: flex;
+    align-items: baseline;
+    gap: 2px;
+    font-family: "SF Mono", ui-monospace, SFMono-Regular, Menlo, Monaco, monospace;
+    font-variant-numeric: tabular-nums;
+}
+
+.clock-hm {
+    font-size: 19px;
+    font-weight: 600;
+    letter-spacing: 0.5px;
+    line-height: 1;
+    color: var(--nb-text);
+}
+
+.clock-sec {
+    padding: 1px 4px;
+    border-radius: 5px;
+    background: rgba(66, 144, 245, 0.10);
+    font-size: 11px;
+    font-weight: 600;
+    line-height: 1.2;
+    color: var(--nb-primary-dark);
+    opacity: 0.9;
+}
+
+.clock-divider {
+    width: 1px;
+    height: 22px;
+    background: linear-gradient(180deg, transparent, var(--nb-border-strong), transparent);
+}
+
+.clock-ymd {
     font-size: 12px;
-    font-weight: 400;
-    color: #7b8a99;
-}
-
-.topbar .home {
-    font-size: 13px;
-    text-decoration: none;
-    color: #5a6b7c;
-    padding: 8px 14px;
-    border-radius: 10px;
-    background: rgba(255, 255, 255, 0.55);
-    border: 1px solid rgba(255, 255, 255, 0.65);
-    transition: 0.2s;
+    letter-spacing: 0.3px;
+    color: var(--nb-text-secondary);
+    font-variant-numeric: tabular-nums;
     white-space: nowrap;
-}
-
-.topbar .home:hover {
-    color: #4290f5;
-    transform: translateY(-1px);
-}
-
-.topbar .back {
-    font-size: 13px;
-    text-decoration: none;
-    color: #5a6b7c;
-    white-space: nowrap;
-}
-
-.topbar .back:hover {
-    color: #4290f5;
 }
 
 /* ---------- 通用 ---------- */
@@ -540,25 +635,147 @@ a {
     font-size: 13.5px;
 }
 
-/* ---------- 页脚 ---------- */
+/* ---------- 页脚（与 www.xhja.cn 统一） ---------- */
 
-.page-footer {
+.site-footer {
+    position: relative;
+    z-index: 1;
     margin-top: 44px;
-    padding-top: 22px;
-    border-top: 1px solid rgba(160, 175, 195, 0.22);
+    border-top: 1px solid var(--nb-border-strong);
+    background: linear-gradient(135deg, rgba(66, 144, 245, 0.10) 0%, rgba(6, 182, 212, 0.06) 100%);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+}
+
+.footer-inner {
+    max-width: 1240px;
+    margin: 0 auto;
+    padding: 34px 24px 26px;
+}
+
+.footer-note {
+    max-width: 880px;
+    margin: 0 auto 22px;
+    padding: 12px 18px;
+    border-radius: 12px;
+    background: rgba(255, 255, 255, 0.45);
+    border: 1px solid rgba(255, 255, 255, 0.65);
     font-size: 12.5px;
-    color: #8a99a8;
-    line-height: 2;
+    line-height: 1.85;
+    color: var(--nb-text-muted);
     text-align: center;
 }
 
-.page-footer a {
-    color: #7b96b8;
+.footer-note a {
+    color: var(--nb-primary-dark);
     text-decoration: none;
 }
 
-.page-footer a:hover {
-    color: #4290f5;
+.footer-note a:hover {
+    text-decoration: underline;
+}
+
+.footer-brand {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 14px;
+    margin-bottom: 22px;
+}
+
+.footer-logo {
+    width: 40px;
+    height: 40px;
+    object-fit: contain;
+    opacity: 0.9;
+}
+
+.footer-name {
+    font-size: 18px;
+    font-weight: 700;
+    color: var(--nb-text);
+}
+
+.footer-slogan {
+    font-size: 12px;
+    color: var(--nb-text-secondary);
+    letter-spacing: 1px;
+}
+
+.footer-links {
+    display: flex;
+    justify-content: center;
+    flex-wrap: wrap;
+    gap: 10px 24px;
+    margin-bottom: 20px;
+}
+
+.footer-links a {
+    color: var(--nb-text-secondary);
+    font-size: 14px;
+    text-decoration: none;
+    transition: color 0.2s ease;
+}
+
+.footer-links a:hover {
+    color: var(--nb-primary-dark);
+}
+
+.footer-copy {
+    text-align: center;
+    font-size: 13px;
+    color: var(--nb-text-muted);
+}
+
+.footer-gen {
+    margin-top: 6px;
+    text-align: center;
+    font-size: 12px;
+    color: var(--nb-text-muted);
+}
+
+.footer-gen a {
+    color: var(--nb-primary-dark);
+    text-decoration: none;
+}
+
+.footer-gen a:hover {
+    text-decoration: underline;
+}
+
+/* 深色模式 */
+@media (prefers-color-scheme: dark) {
+    .clock {
+        background: rgba(31, 33, 48, 0.62);
+        border-color: rgba(120, 126, 160, 0.25);
+        box-shadow: none;
+    }
+    .clock-hm { color: #e8eaf2; }
+    .clock-sec { color: #7ec8f5; background: rgba(66, 144, 245, 0.16); }
+    .clock-ymd { color: #a6a9bd; }
+    .brand-name { color: #e8eaf2; }
+    .brand-slogan { color: #a6a9bd; }
+    .header-nav a { color: #a6a9bd; }
+    .header-nav a:hover, .header-nav a.cur { color: #7ec8f5; background: rgba(66, 144, 245, 0.14); }
+    .site-header {
+        background: linear-gradient(180deg, rgba(24, 26, 38, 0.88) 0%, rgba(28, 30, 44, 0.7) 100%);
+        border-bottom-color: rgba(120, 126, 160, 0.28);
+    }
+    .footer-note {
+        background: rgba(31, 33, 48, 0.55);
+        border-color: rgba(120, 126, 160, 0.22);
+        color: #8b8ea3;
+    }
+    .footer-note a, .footer-gen a { color: #7ec8f5; }
+    .footer-brand .footer-name { color: #e8eaf2; }
+    .footer-brand .footer-slogan { color: #a6a9bd; }
+    .footer-links a { color: #a6a9bd; }
+    .footer-links a:hover { color: #7ec8f5; }
+    .footer-copy, .footer-gen { color: #8b8ea3; }
+    .site-footer {
+        background: linear-gradient(135deg, rgba(66, 144, 245, 0.12) 0%, rgba(6, 182, 212, 0.08) 100%);
+        border-top-color: rgba(120, 126, 160, 0.28);
+    }
 }
 
 /* ---------- 响应式 ---------- */
@@ -597,11 +814,69 @@ a {
         left: -6px;
     }
 
-    .topbar {
-        padding: 12px 16px;
+    .site-header {
+        height: auto;
+        min-height: 66px;
     }
 
-    .brand-sub {
+    .header-inner {
+        flex-wrap: wrap;
+        padding: 10px 14px;
+        gap: 10px;
+    }
+
+    .brand-logo {
+        width: 36px;
+        height: 36px;
+    }
+
+    .brand-name {
+        font-size: 17px;
+    }
+
+    .brand-slogan {
+        display: none;
+    }
+
+    .header-nav {
+        order: 3;
+        width: 100%;
+        justify-content: flex-start;
+        overflow-x: auto;
+        -ms-overflow-style: none;
+        scrollbar-width: none;
+    }
+
+    .header-nav::-webkit-scrollbar {
+        display: none;
+    }
+
+    .header-nav a {
+        padding: 6px 12px;
+        font-size: 13.5px;
+        white-space: nowrap;
+    }
+
+    .clock {
+        padding: 4px 10px;
+        gap: 8px;
+    }
+
+    .clock-hm {
+        font-size: 16px;
+    }
+
+    .clock-ymd {
+        display: none;
+    }
+
+    .footer-inner {
+        padding: 26px 16px 22px;
+    }
+}
+
+@media (max-width: 560px) {
+    .clock-sec {
         display: none;
     }
 }
