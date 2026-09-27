@@ -31,6 +31,9 @@ import urllib.request
 from datetime import date, datetime, timedelta
 from pathlib import Path
 
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+from site_frame import CLOCK_SCRIPT, render_footer, render_header  # noqa: E402
+
 ROOT = Path(__file__).resolve().parent.parent
 ZAOCAN_DIR = ROOT / 'zaocan'
 INDEX_JSON = ZAOCAN_DIR / 'index.json'
@@ -665,7 +668,13 @@ def render_page(d, quotes, buckets, generated):
         ('__TITLE__', '%s 新闻 · 徐宏江的小站' % date_cn),
         ('__DATE_CN__', date_cn),
         ('__WEEKDAY__', weekday),
-        ('__GENERATED__', generated),
+        ('__HEADER__', render_header('home')),
+        ('__FOOTER__', render_footer(
+            note='数据来源：东方财富网、证券时报、上海证券报·中国证券网等公开信息，'
+                 '版权归原作者所有，本页仅作个人投资参考，<strong>不构成任何投资建议</strong>。',
+            generated='本页由脚本自动生成于 %s · 每日 08:00 更新 · <a href="/xwlb/">查看新闻联播</a>'
+                      % generated)),
+        ('__CLOCK_SCRIPT__', CLOCK_SCRIPT),
         ('__XWLB_CARD__', xwlb_card),
         ('__QUOTES__', '\n'.join(quote_rows)),
         ('__SECTIONS__', '\n'.join(sections)),
@@ -726,7 +735,6 @@ PAGE_TEMPLATE = '''<!DOCTYPE html>
         a.item-title:hover { text-decoration: underline; }
         .tag-hot { font-size: 11px; color: #fff; background: var(--up); border-radius: 4px; padding: 1px 5px; flex-shrink: 0; }
         .item-summary { font-size: 13px; color: #666; margin: 6px 0 0; line-height: 1.6; }
-        .zc-footer { text-align: center; font-size: 12px; color: #999; margin-top: 30px; line-height: 1.8; }
         @media (prefers-color-scheme: dark) {
             .xwlb-card, .qz-item, .item { background: #1f2130; border-color: #2c2f42; }
             .xwlb-body h3, .qz-val, .item-title { color: #e8eaf2; }
@@ -738,19 +746,7 @@ PAGE_TEMPLATE = '''<!DOCTYPE html>
     </style>
 </head>
 <body>
-    <header class="topbar">
-        <div class="brand">
-            <span class="brand-mark">
-                <svg viewBox="0 0 16 16" xmlns="http://www.w3.org/2000/svg">
-                    <path d="M2 13 L8 2 L14 13" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                    <path d="M4.5 9.5 H11.5" stroke="#fff" stroke-width="1.6" stroke-linecap="round"/>
-                </svg>
-            </span>
-            新闻
-            <span class="brand-sub">开盘前 · 每日速览</span>
-        </div>
-        <a class="home" href="https://www.xhja.cn/" target="_blank" rel="noopener">徐宏江的小站 ↗</a>
-    </header>
+__HEADER__
 
     <main class="zc-wrap">
         <section class="zc-hero">
@@ -768,11 +764,10 @@ __QUOTES__
 
 __SECTIONS__
 
-        <footer class="zc-footer">
-            <p>数据来源：东方财富网、证券时报、上海证券报·中国证券网等公开信息，版权归原作者所有，本页仅作个人投资参考，不构成任何投资建议。</p>
-            <p>本页由脚本自动生成于 __GENERATED__ · 每日 08:00 更新 · <a href="/xwlb/">查看新闻联播</a></p>
-        </footer>
     </main>
+
+__FOOTER__
+    <script>__CLOCK_SCRIPT__</script>
     <script defer src="https://api.xhja.cn/stats.js?site=news"></script>
 </body>
 </html>
