@@ -31,6 +31,9 @@ import urllib.request
 from datetime import date, datetime, timedelta
 from pathlib import Path
 
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+from site_frame import CLOCK_SCRIPT, render_footer, render_header  # noqa: E402
+
 ROOT = Path(__file__).resolve().parent.parent
 NEWS_DIR = ROOT / 'xwlb'
 IMAGES_DIR = ROOT / 'images'
@@ -201,6 +204,12 @@ def render_article(d, items, cover_local):
         ('__DATE_CN__', date_cn),
         ('__WEEKDAY__', weekday),
         ('__COUNT__', str(len(items))),
+        ('__HEADER__', render_header('xwlb')),
+        ('__FOOTER__', render_footer(
+            note='内容来源：央视网《新闻联播》（tv.cctv.com），版权归原作者所有，'
+                 '本站仅作个人学习摘要，每条均附原文链接。',
+            generated='本页面由脚本自动生成于 %s · <a href="/xwlb/">返回新闻列表</a>' % generated)),
+        ('__CLOCK_SCRIPT__', CLOCK_SCRIPT),
         ('__HERO_COVER__', hero_cover),
         ('__ITEMS__', '\n'.join(cards)),
         ('__GENERATED__', generated),
@@ -219,20 +228,7 @@ ARTICLE_TEMPLATE = '''<!DOCTYPE html>
     <link rel="stylesheet" href="../assets/style.css">
 </head>
 <body>
-    <header class="topbar">
-        <a class="back" href="/xwlb/">← 返回列表</a>
-        <div class="brand">
-            <span class="brand-mark">
-                <svg viewBox="0 0 16 16" xmlns="http://www.w3.org/2000/svg">
-                    <rect x="1" y="3" width="14" height="10" rx="2"></rect>
-                    <path d="M6 13h4v2H6z" opacity="0.7"></path>
-                    <path d="M5 6.2v3.6l3.2-1.8z" fill="#fff"></path>
-                </svg>
-            </span>
-            新闻资讯
-        </div>
-        <a class="home" href="https://www.xhja.cn/" target="_blank" rel="noopener">徐宏江的小站 ↗</a>
-    </header>
+__HEADER__
 
     <main class="article-main">
         <section class="article-hero">
@@ -252,11 +248,10 @@ ARTICLE_TEMPLATE = '''<!DOCTYPE html>
 __ITEMS__
         </section>
 
-        <footer class="page-footer">
-            <p>内容来源：央视网《新闻联播》，版权归原作者所有，本页仅作个人学习摘要，每条均附原文链接。</p>
-            <p>本页面由脚本自动生成于 __GENERATED__ · <a href="/xwlb/">返回新闻列表</a></p>
-        </footer>
     </main>
+
+__FOOTER__
+    <script>__CLOCK_SCRIPT__</script>
     <script defer src="https://api.xhja.cn/stats.js?site=news"></script>
 </body>
 </html>
@@ -378,3 +373,4 @@ def main():
 
 if __name__ == '__main__':
     main()
+
