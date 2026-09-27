@@ -32,7 +32,8 @@ from datetime import date, datetime, timedelta
 from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
-from site_frame import CLOCK_SCRIPT, render_footer, render_header  # noqa: E402
+from site_frame import (CLOCK_SCRIPT, SITE_NAV,  # noqa: E402
+                        render_footer, render_header)
 
 ROOT = Path(__file__).resolve().parent.parent
 ZAOCAN_DIR = ROOT / 'zaocan'
@@ -565,36 +566,49 @@ def load_xwlb_latest():
     return data[0]
 
 
+def item_link(it):
+    """按来源拼原文链接，返回 (url, target)。无链接时返回 ('', '')。"""
+    code = it.get('code', '')
+    source = it.get('source', '')
+    if source == 'eastmoney' and code:
+        return 'https://finance.eastmoney.com/a/%s.html' % htmllib.escape(code), \
+            ' target="_blank" rel="noopener"'
+    if source in ('cnstock', 'stcn') and code:
+        return htmllib.escape(code), ' target="_blank" rel="noopener"'
+    return '', ''
+
+
 def render_page(d, quotes, buckets, generated):
     ds = d.isoformat()
     date_cn = '%d 年 %d 月 %d 日' % (d.year, d.month, d.day)
     weekday = WEEKDAYS[d.weekday()]
 
-    # 新闻联播入口卡片
+    # 焦点头条（新闻联播）
     xwlb = load_xwlb_latest()
     if xwlb:
         cover = xwlb.get('cover', '')
         xwlb_date = xwlb.get('date', '')
         xwlb_weekday = xwlb.get('weekday', '')
         xwlb_count = xwlb.get('count', 0)
-        titles = xwlb.get('titles', [])[:3]
-        cover_html = ('<img class="xwlb-cover" src="%s" alt="%s 新闻联播" loading="lazy">'
+        titles = xwlb.get('titles', [])[:4]
+        cover_html = ('<img src="%s" alt="%s 新闻联播" loading="lazy">'
                       % (htmllib.escape(cover), htmllib.escape(xwlb_date))) if cover else ''
         title_items = ''.join('<li>%s</li>' % htmllib.escape(t) for t in titles)
         xwlb_card = (
-            '<a class="xwlb-card" href="/xwlb/%s.html">%s'
-            '<div class="xwlb-body">'
-            '<div class="xwlb-head"><span class="xwlb-tag">新闻联播</span>'
-            '<span class="xwlb-date">%s · %s</span></div>'
-            '<h3>《新闻联播》主要内容</h3>'
-            '<ul class="xwlb-titles">%s</ul>'
-            '<span class="xwlb-more">共 %d 条 · 阅读全文 →</span>'
+            '<a class="focus" href="/xwlb/%s.html">'
+            '<div class="focus-cover">%s<span class="focus-badge">头条</span></div>'
+            '<div class="focus-body">'
+            '<div class="focus-head"><span>%s · %s</span>'
+            '<span>央视网</span></div>'
+            '<h2>《新闻联播》主要内容</h2>'
+            '<ul class="focus-list">%s</ul>'
+            '<span class="focus-more">共 %d 条 · 阅读全文 →</span>'
             '</div></a>'
             % (htmllib.escape(xwlb_date), cover_html,
                htmllib.escape(xwlb_date), htmllib.escape(xwlb_weekday),
                title_items, xwlb_count))
     else:
-        xwlb_card = '<div class="xwlb-card empty">新闻联播内容暂未更新，今晚播出后自动上线。</div>'
+        xwlb_card = '<div class="focus empty">新闻联播内容暂未更新，今晚播出后自动上线。</div>'
 
     # 外盘
     quote_rows = []
@@ -638,17 +652,7 @@ def render_page(d, quotes, buckets, generated):
             summary_html = ('<p class="item-summary">%s</p>' % htmllib.escape(summary)
                             if summary else '')
             tag = '<span class="tag-hot">重要</span>' if it.get('important') else ''
-            code = it.get('code', '')
-            source = it.get('source', '')
-            if source == 'eastmoney' and code:
-                link = 'https://finance.eastmoney.com/a/%s.html' % htmllib.escape(code)
-                target = ' target="_blank" rel="noopener"'
-            elif source in ('cnstock', 'stcn') and code:
-                link = htmllib.escape(code)
-                target = ' target="_blank" rel="noopener"'
-            else:
-                link = ''
-                target = ''
+            link, target = item_link(it)
             if link:
                 title_html = ('<a class="item-title" href="%s"%s>%s</a>'
                               % (link, target, htmllib.escape(it['title'])))
@@ -663,6 +667,58 @@ def render_page(d, quotes, buckets, generated):
             '<div class="item-list">%s</div></section>'
             % (icon, name, len(items), '\n'.join(cards)))
 
+    # 侧栏「热点排行」：重要的排前面，再按栏目顺序补齐，去重取 10 条
+    pool = []
+    for name, _icon in order:
+        for it in buckets.get(name, []):
+            pool.append((1 if it.get('important') else 0, it))
+    pool.sort(key=lambda x: -x[0])
+    hot, seen = [], set()
+    for _w, it in pool:
+        key = it.get('title', '')
+        if key in seen:
+            continue
+        seen.add(key)
+        hot.append(it)
+        if len(hot) >= 10:
+            break
+    hot_rows = []
+    for i, it in enumerate(hot, 1):
+        link, target = item_link(it)
+        cls = ' class="rank-item top"' if i <= 3 else ' class="rank-item"'
+        text = '<span class="rank-text">%s</span>' % htmllib.escape(it['title'])
+        if link:
+            hot_rows.append('<a%s href="%s"%s><span class="rank-no">%d</span>%s</a>'
+                            % (cls, link, target, i, text))
+        else:
+            hot_rows.append('<div%s><span class="rank-no">%d</span>%s</div>'
+                            % (cls, i, text))
+
+    # 侧栏「外盘速览」（竖排，与顶部行情条同源）
+    side_rows = []
+    for q in quotes[:8]:
+        pct = q.get('pct')
+        if pct is None:
+            cls, pct_str = 'flat', '--'
+        else:
+            pct = float(pct)
+            cls = 'up' if pct > 0 else ('down' if pct < 0 else 'flat')
+            pct_str = '%s%.2f%%' % ('+' if pct > 0 else '', pct)
+        val = q.get('value')
+        is_fx = q.get('group') == '外汇'
+        val_str = ('%.4f' % val if is_fx else '%.2f' % val) \
+            if isinstance(val, (int, float)) else '--'
+        side_rows.append(
+            '<div class="side-quote"><span class="sq-name">%s</span>'
+            '<span class="sq-val">%s</span>'
+            '<span class="sq-chg %s">%s</span></div>'
+            % (htmllib.escape(q['name']), val_str, cls, pct_str))
+
+    site_links = ''.join(
+        '<a href="%s"%s>%s</a>'
+        % (href, (' target="_blank" rel="noopener"' if ext else ''), name)
+        for name, href, ext in SITE_NAV if ext)
+
     html = PAGE_TEMPLATE
     for token, value in [
         ('__TITLE__', '%s 新闻 · 徐宏江的小站' % date_cn),
@@ -675,9 +731,12 @@ def render_page(d, quotes, buckets, generated):
             generated='本页由脚本自动生成于 %s · 每日 08:00 更新 · <a href="/xwlb/">查看新闻联播</a>'
                       % generated)),
         ('__CLOCK_SCRIPT__', CLOCK_SCRIPT),
-        ('__XWLB_CARD__', xwlb_card),
+        ('__FOCUS__', xwlb_card),
         ('__QUOTES__', '\n'.join(quote_rows)),
         ('__SECTIONS__', '\n'.join(sections)),
+        ('__HOT_LIST__', '\n'.join(hot_rows)),
+        ('__SIDE_QUOTES__', '\n'.join(side_rows)),
+        ('__SITE_LINKS__', site_links),
     ]:
         html = html.replace(token, value)
     return html
@@ -691,77 +750,47 @@ PAGE_TEMPLATE = '''<!DOCTYPE html>
     <title>__TITLE__</title>
     <meta name="description" content="__DATE_CN__ 每日新闻：隔夜外盘、宏观要闻、重磅公告、板块异动、风险提示，开盘前速览。">
     <link rel="stylesheet" href="assets/style.css">
-    <style>
-        /* 首页专属样式；通用色值/变量全部取自 assets/style.css（与 www.xhja.cn 同源） */
-        :root { --up: #e5484d; --down: #0f9d58; }
-        .zc-wrap { max-width: 860px; margin: 0 auto;
-            padding: calc(var(--header-h) + 8px) 16px 40px; }
-        .zc-hero { margin: 0 0 20px; padding: 24px 22px; border-radius: var(--radius-lg);
-            background: linear-gradient(135deg, var(--primary), var(--primary-dark));
-            color: #fff; box-shadow: 0 8px 28px rgba(66, 144, 245, 0.28); }
-        .zc-hero .date { font-size: 13px; opacity: .9; }
-        .zc-hero h1 { font-size: 24px; margin: 6px 0 4px; }
-        .zc-hero .tip { font-size: 13px; opacity: .9; }
-        .xwlb-card { display: flex; gap: 14px; background: var(--panel-strong); border: 1px solid var(--border);
-            border-radius: var(--radius-md); padding: 14px; margin: 0 0 20px; text-decoration: none;
-            color: inherit; box-shadow: var(--shadow); transition: transform .15s ease, box-shadow .25s ease; }
-        .xwlb-card:hover { transform: translateY(-2px); box-shadow: var(--shadow-md); }
-        .xwlb-card.empty { display: block; color: var(--text-muted); text-align: center; }
-        .xwlb-cover { width: 120px; height: 78px; object-fit: cover; border-radius: 10px; flex-shrink: 0; }
-        .xwlb-body { flex: 1; min-width: 0; }
-        .xwlb-head { display: flex; align-items: center; gap: 8px; margin-bottom: 4px; }
-        .xwlb-tag { font-size: 11px; color: #fff;
-            background: linear-gradient(135deg, var(--primary), var(--primary-dark));
-            border-radius: 4px; padding: 2px 7px; }
-        .xwlb-date { font-size: 12px; color: var(--text-muted); }
-        .xwlb-body h3 { font-size: 16px; margin: 2px 0 6px; color: var(--text); }
-        .xwlb-titles { margin: 0; padding-left: 18px; font-size: 13px; color: var(--text-secondary); line-height: 1.6; }
-        .xwlb-titles li { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-        .xwlb-more { font-size: 12px; color: var(--primary-dark); margin-top: 6px; display: inline-block; }
-        .qz-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 10px; margin: 16px 0 24px; }
-        .qz-item { background: var(--panel-strong); border: 1px solid var(--border);
-            border-radius: var(--radius-md); padding: 12px 14px; box-shadow: var(--shadow); }
-        .qz-name { display: block; font-size: 12px; color: var(--text-muted); }
-        .qz-val { display: block; font-size: 18px; font-weight: 700; margin: 4px 0; color: var(--text); }
-        .qz-chg { font-size: 13px; font-weight: 600; }
-        .qz-item.up .qz-chg { color: var(--up); }
-        .qz-item.down .qz-chg { color: var(--down); }
-        .qz-item.flat .qz-chg { color: var(--text-muted); }
-        .sec { margin: 20px 0; }
-        .sec-title { font-size: 17px; margin: 0 0 10px; display: flex; align-items: center; gap: 6px; color: var(--text); }
-        .sec-count { font-size: 12px; color: var(--text-secondary); background: rgba(66, 144, 245, 0.10);
-            border-radius: 10px; padding: 2px 8px; }
-        .item-list { display: flex; flex-direction: column; gap: 10px; }
-        .item { background: var(--panel-strong); border: 1px solid var(--border);
-            border-radius: var(--radius-md); padding: 12px 14px; box-shadow: var(--shadow); }
-        .item-head { display: flex; align-items: baseline; gap: 8px; }
-        .item-time { font-size: 12px; color: var(--text-muted); flex-shrink: 0; }
-        .item-title { font-size: 15px; font-weight: 600; line-height: 1.5; color: var(--text); }
-        a.item-title { color: inherit; text-decoration: none; }
-        a.item-title:hover { text-decoration: underline; }
-        .tag-hot { font-size: 11px; color: #fff; background: var(--up); border-radius: 4px; padding: 1px 5px; flex-shrink: 0; }
-        .item-summary { font-size: 13px; color: var(--text-secondary); margin: 6px 0 0; line-height: 1.6; }
-    </style>
 </head>
 <body>
 __HEADER__
 
-    <main class="zc-wrap">
-        <section class="zc-hero">
-            <div class="date">__DATE_CN__ · __WEEKDAY__</div>
-            <h1>今日新闻</h1>
-            <div class="tip">隔夜外盘 · 宏观要闻 · 重磅公告 · 板块异动 · 风险提示，开盘前 3 分钟速览</div>
-        </section>
+    <main class="portal">
+        <div class="portal-main">
+            <section class="zc-hero">
+                <div class="date">__DATE_CN__ · __WEEKDAY__</div>
+                <h1>今日新闻</h1>
+                <div class="tip">隔夜外盘 · 宏观要闻 · 重磅公告 · 板块异动 · 风险提示，开盘前 3 分钟速览</div>
+            </section>
 
-__XWLB_CARD__
+__FOCUS__
 
-        <h2 class="section-title">隔夜外盘</h2>
-        <div class="qz-grid">
+            <div class="qz-strip">
 __QUOTES__
-        </div>
+            </div>
 
 __SECTIONS__
+        </div>
 
+        <aside class="portal-side">
+            <div class="side-card">
+                <div class="side-title">🔥 热点排行</div>
+                <div class="rank-list">
+__HOT_LIST__
+                </div>
+            </div>
+
+            <div class="side-card">
+                <div class="side-title">📊 外盘速览</div>
+__SIDE_QUOTES__
+            </div>
+
+            <div class="side-card">
+                <div class="side-title">🧭 兄弟站点</div>
+                <div class="side-links">
+__SITE_LINKS__
+                </div>
+            </div>
+        </aside>
     </main>
 
 __FOOTER__
