@@ -231,6 +231,7 @@ ARTICLE_TEMPLATE = '''<!DOCTYPE html>
 __HEADER__
 
     <main class="article-main">
+        <nav class="crumb"><a href="/">首页</a><span class="crumb-sep">›</span><a href="/xwlb/">新闻联播</a><span class="crumb-sep">›</span><span class="cur">__DATE_CN__</span></nav>
         <section class="article-hero">
             <div class="hero-text">
                 <div class="hero-date">__DATE_CN__ · __WEEKDAY__</div>
