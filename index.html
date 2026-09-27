@@ -62,18 +62,35 @@
     </style>
 </head>
 <body>
-    <header class="topbar">
-        <div class="brand">
-            <span class="brand-mark">
-                <svg viewBox="0 0 16 16" xmlns="http://www.w3.org/2000/svg">
-                    <path d="M2 13 L8 2 L14 13" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                    <path d="M4.5 9.5 H11.5" stroke="#fff" stroke-width="1.6" stroke-linecap="round"/>
-                </svg>
-            </span>
-            新闻
-            <span class="brand-sub">开盘前 · 每日速览</span>
+    <header class="site-header">
+        <div class="header-inner">
+            <a class="brand" href="/" aria-label="回到今日新闻">
+                <img src="/assets/logo.png" alt="行恒简安" class="brand-logo">
+                <div class="brand-text">
+                    <span class="brand-name">行恒简安</span>
+                    <span class="brand-slogan">行恒致远 · 简安自得</span>
+                </div>
+            </a>
+            <nav class="header-nav">
+        <a href="/">今日新闻</a>
+        <a href="/xwlb/">新闻联播</a>
+        <a href="https://hot.xhja.cn/" target="_blank" rel="noopener">今日热榜</a>
+        <a href="https://tools.xhja.cn/" target="_blank" rel="noopener">工具站</a>
+        <a href="https://www.xhja.cn/" target="_blank" rel="noopener">主页</a>
+            </nav>
+            <div class="header-actions">
+                <div class="clock">
+                    <div class="clock-main">
+                        <span class="clock-hm" data-clock-hm>--:--</span>
+                        <span class="clock-sec" data-clock-sec>--</span>
+                    </div>
+                    <span class="clock-divider" aria-hidden="true"></span>
+                    <div class="clock-meta">
+                        <span class="clock-ymd" data-clock-ymd>----/--</span>
+                    </div>
+                </div>
+            </div>
         </div>
-        <a class="home" href="https://www.xhja.cn/" target="_blank" rel="noopener">徐宏江的小站 ↗</a>
     </header>
 
     <main class="zc-wrap">
@@ -101,11 +118,51 @@
 <article class="item"><div class="item-head"><span class="item-time"></span><a class="item-title" href="https://www.cnstock.com/commonDetail/795625" target="_blank" rel="noopener">中颖电子：向特定对象发行股票申请获中国证监会同意注册批复</a></div></article></div></section>
 <section class="sec"><h2 class="sec-title">📋 重磅公告 <span class="sec-count">1</span></h2><div class="item-list"><article class="item"><div class="item-head"><span class="item-time"></span><a class="item-title" href="https://www.stcn.com/article/detail/4199877.html" target="_blank" rel="noopener">中信证券：建议港股投资者优先关注电力等防御属性较强且分红稳定的优质行业</a></div></article></div></section>
 
-        <footer class="zc-footer">
-            <p>数据来源：东方财富网、证券时报、上海证券报·中国证券网等公开信息，版权归原作者所有，本页仅作个人投资参考，不构成任何投资建议。</p>
-            <p>本页由脚本自动生成于 2026-09-27 13:06 · 每日 08:00 更新 · <a href="/xwlb/">查看新闻联播</a></p>
-        </footer>
     </main>
+
+    <footer class="site-footer">
+        <div class="footer-inner">
+            <div class="footer-note">数据来源：东方财富网、证券时报、上海证券报·中国证券网等公开信息，版权归原作者所有，本页仅作个人投资参考，不构成任何投资建议。</div>
+            <div class="footer-brand">
+                <img src="/assets/logo.png" alt="" class="footer-logo">
+                <div>
+                    <div class="footer-name">行恒简安</div>
+                    <div class="footer-slogan">行恒致远 · 简安自得</div>
+                </div>
+            </div>
+            <div class="footer-links">
+            <a href="/">今日新闻</a>
+            <a href="/xwlb/">新闻联播</a>
+            <a href="https://hot.xhja.cn/" target="_blank" rel="noopener">今日热榜</a>
+            <a href="https://tools.xhja.cn/" target="_blank" rel="noopener">工具站</a>
+            <a href="https://www.xhja.cn/" target="_blank" rel="noopener">主页</a>
+            </div>
+            <div class="xhja-mail"><a href="mailto:x@xhja.cn">📧 联系我：x@xhja.cn</a></div>
+            <div class="footer-copy">© 2026 行恒简安 · All Rights Reserved</div>
+            <div class="xhja-icp">
+                <a href="https://beian.miit.gov.cn/" target="_blank" rel="noopener">浙ICP备2026078012号</a>
+            </div>
+            <div class="footer-gen">本页由脚本自动生成于 2026-09-27 13:06 · 每日 08:00 更新 · <a href="/xwlb/">查看新闻联播</a></div>
+        </div>
+    </footer>
+
+    <script>(function () {
+  var WEEK = ['日', '一', '二', '三', '四', '五', '六'];
+  function pad(n) { return n < 10 ? '0' + n : '' + n; }
+  function tick() {
+    var d = new Date();
+    var s = [pad(d.getHours()) + ':' + pad(d.getMinutes()), pad(d.getSeconds()),
+             (d.getMonth() + 1) + '/' + d.getDate() + ' 周' + WEEK[d.getDay()]];
+    var sel = ['[data-clock-hm]', '[data-clock-sec]', '[data-clock-ymd]'];
+    for (var i = 0; i < sel.length; i++) {
+      var el = document.querySelector(sel[i]);
+      if (el && el.textContent !== s[i]) el.textContent = s[i];
+    }
+  }
+  tick();
+  setInterval(tick, 1000);
+})();</script>
     <script defer src="https://api.xhja.cn/stats.js?site=news"></script>
 </body>
 </html>
+
