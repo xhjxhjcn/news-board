@@ -20,40 +20,35 @@ on:
 permissions:
   contents: write
 
-jobs:
-  fetch-zaocan:
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-      - name: Setup Python
-        uses: actions/setup-python@v5
-        with:
-          python-version: '3.11'
-      - name: Fetch zaocan
-        run: python scripts/fetch_zaocan.py --force
-      - name: Commit and push
-        run: |
-          git config user.name "github-actions[bot]"
-          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add -A
-          if git diff --cached --quiet; then
-            echo "没有新内容，跳过提交"
-          else
-            git commit -m "zaocan: 更新早参 $(date -u +%Y-%m-%d)"
-            git push
-          fi
+# 同一 workflow 的多个 cron / 上一次未跑完的新触发会并发，
+# 并发时两个 run 同时 push 到 main 会再次撞上 non-fast-forward。
+# 排队执行（cancel-in-progress: false 保证不跳更新）。
+concurrency:
+  group: daily-news-${{ github.ref }}
+  cancel-in-progress: false
 
-  fetch-news:
+jobs:
+  build:
     runs-on: ubuntu-latest
+    timeout-minutes: 30
     steps:
       - name: Checkout
         uses: actions/checkout@v4
+        with:
+          # 完整历史，push 前的 rebase 兜底才不会撞 shallow  unrelated-history
+          fetch-depth: 0
+
       - name: Setup Python
         uses: actions/setup-python@v5
         with:
           python-version: '3.11'
-      - name: Fetch news
+
+      # 顺序不可调换：fetch_zaocan 会读 xwlb/index.json[0] 渲染首页新闻联播入口
+      # 卡片，必须等 fetch_news 把当天条目顶到首位之后它读到的才是当天内容。
+      - name: Fetch zaocan（早参首页）
+        run: python scripts/fetch_zaocan.py --force
+
+      - name: Fetch news（新闻联播）
         run: |
           ARGS=""
           if [ -n "${{ github.event.inputs.days }}" ]; then
@@ -62,6 +57,7 @@ jobs:
             ARGS="--date ${{ github.event.inputs.date }}"
           fi
           python scripts/fetch_news.py $ARGS
+
       - name: Commit and push
         run: |
           git config user.name "github-actions[bot]"
@@ -71,5 +67,9 @@ jobs:
             echo "没有新内容，跳过提交"
           else
             git commit -m "news: 更新 $(date -u +%Y-%m-%d)"
+            # 兜底：万一有并发 run 抢先推了，先把本地 commit 挪到远端之上，
+            # 变基为空改动时 rebase 会自动跳过，不会报错。
+            git fetch origin main
+            git rebase FETCH_HEAD || echo "rebase 失败，尝试直接 push"
             git push
           fi
