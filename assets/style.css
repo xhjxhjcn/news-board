@@ -1,7 +1,36 @@
 /* ============================================================
    新闻资讯 · news.xhja.cn
-   设计语言与 www.xhja.cn 保持一致：浅色渐变 + 玻璃拟态
+   基础层（变量 / body / 顶栏 / 时钟 / 页脚 / 按钮 / 响应式）与
+   www.xhja.cn 主站同源，逐字保持一致；下方业务层为本站专属。
    ============================================================ */
+
+:root {
+    --bg-0: #eaf1fb;
+    --bg-1: #f5f9ff;
+    --bg-2: #e6edf8;
+    --bg-3: #dbe5f3;
+    --panel: rgba(244, 249, 255, 0.62);
+    --panel-strong: rgba(248, 251, 255, 0.9);
+    --border: rgba(148, 163, 184, 0.22);
+    --border-strong: rgba(66, 144, 245, 0.35);
+    --text: #0f172a;
+    --text-secondary: #475569;
+    --text-muted: #94a3b8;
+    --primary: #4290f5;
+    --primary-light: #5aa0ff;
+    --primary-dark: #2563eb;
+    --accent: #06b6d4;
+    --success: #22c55e;
+    --danger: #ef4444;
+    --warning: #f59e0b;
+    --shadow: 0 4px 24px rgba(15, 23, 42, 0.06);
+    --shadow-md: 0 8px 40px rgba(15, 23, 42, 0.08);
+    --shadow-glow: 0 0 40px rgba(66, 144, 245, 0.14);
+    --radius-sm: 10px;
+    --radius-md: 14px;
+    --radius-lg: 20px;
+    --header-h: 76px;
+}
 
 * {
     margin: 0;
@@ -9,46 +38,58 @@
     box-sizing: border-box;
 }
 
+html {
+    scroll-behavior: smooth;
+}
+
 body {
     min-height: 100vh;
-    background: linear-gradient(135deg, #e0f7ff, #f0efff);
-    font-family: system-ui, "Microsoft Yahei", sans-serif;
-    color: #2c3e50;
-    -webkit-font-smoothing: antialiased;
+    background:
+        radial-gradient(ellipse at 6% -8%, rgba(66, 144, 245, 0.22) 0%, transparent 45%),
+        radial-gradient(ellipse at 94% 2%, rgba(6, 182, 212, 0.16) 0%, transparent 42%),
+        radial-gradient(ellipse at 50% 118%, rgba(66, 144, 245, 0.14) 0%, transparent 52%),
+        linear-gradient(180deg, var(--bg-1) 0%, var(--bg-0) 55%, var(--bg-2) 100%);
+    color: var(--text);
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, "PingFang SC", "Microsoft YaHei", sans-serif;
+    line-height: 1.6;
+    overflow-x: hidden;
+    -webkit-tap-highlight-color: transparent;
+}
+
+#tech-canvas {
+    position: fixed;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+    z-index: 0;
+    opacity: 0.5;
 }
 
 a {
-    color: #4290f5;
+    color: inherit;
+    text-decoration: none;
 }
 
-.hidden {
-    display: none !important;
+button {
+    font-family: inherit;
+    cursor: pointer;
+    border: none;
+    outline: none;
 }
 
-/* ---------- 顶栏（与 www.xhja.cn 统一） ---------- */
-
-:root {
-    --nb-text: #2c3e50;
-    --nb-text-secondary: #5a6b7c;
-    --nb-text-muted: #8a97a3;
-    --nb-border: rgba(148, 163, 184, 0.22);
-    --nb-border-strong: rgba(66, 144, 245, 0.35);
-    --nb-primary: #4290f5;
-    --nb-primary-dark: #2563eb;
-    --nb-shadow: 0 4px 24px rgba(15, 23, 42, 0.06);
-}
-
+/* ===== Header ===== */
 .site-header {
-    position: sticky;
+    position: fixed;
     top: 0;
     left: 0;
     right: 0;
-    z-index: 100;
-    height: 76px;
+    z-index: 1000;
+    height: var(--header-h);
     background: linear-gradient(180deg, rgba(238, 244, 253, 0.85) 0%, rgba(231, 239, 251, 0.62) 100%);
     backdrop-filter: blur(20px);
     -webkit-backdrop-filter: blur(20px);
-    border-bottom: 1px solid var(--nb-border);
+    border-bottom: 1px solid var(--border);
 }
 
 .site-header::after {
@@ -58,12 +99,12 @@ a {
     right: 0;
     bottom: -1px;
     height: 1px;
-    background: linear-gradient(90deg, transparent, var(--nb-primary), var(--nb-primary-dark), transparent);
+    background: linear-gradient(90deg, transparent, var(--primary), var(--accent), transparent);
     opacity: 0.65;
 }
 
 .header-inner {
-    max-width: 1240px;
+    max-width: 1320px;
     height: 100%;
     margin: 0 auto;
     padding: 0 24px;
@@ -78,7 +119,6 @@ a {
     align-items: center;
     gap: 14px;
     flex-shrink: 0;
-    text-decoration: none;
 }
 
 .brand-logo {
@@ -95,16 +135,17 @@ a {
 }
 
 .brand-name {
-    font-size: 19px;
+    font-size: 20px;
     font-weight: 800;
     letter-spacing: 1px;
-    color: var(--nb-text);
+    color: var(--text);
 }
 
 .brand-slogan {
     font-size: 11px;
-    color: var(--nb-text-secondary);
-    letter-spacing: 1.5px;
+    color: var(--text-secondary);
+    letter-spacing: 2px;
+    text-transform: uppercase;
 }
 
 .header-nav {
@@ -118,21 +159,13 @@ a {
     border-radius: 8px;
     font-size: 14px;
     font-weight: 500;
-    color: var(--nb-text-secondary);
-    text-decoration: none;
-    white-space: nowrap;
+    color: var(--text-secondary);
     transition: all 0.25s ease;
 }
 
 .header-nav a:hover {
-    color: var(--nb-primary-dark);
+    color: var(--primary-dark);
     background: rgba(66, 144, 245, 0.08);
-}
-
-.header-nav a.cur {
-    color: var(--nb-primary-dark);
-    background: rgba(66, 144, 245, 0.12);
-    font-weight: 600;
 }
 
 .header-actions {
@@ -142,19 +175,24 @@ a {
     flex-shrink: 0;
 }
 
-/* ---------- 顶栏时钟 ---------- */
-
+/* ===== 顶部时钟 ===== */
 .clock {
     display: flex;
     align-items: center;
     gap: 12px;
     padding: 6px 16px;
     border-radius: 14px;
-    background: rgba(244, 249, 255, 0.62);
-    border: 1px solid var(--nb-border);
-    box-shadow: var(--nb-shadow);
+    background: var(--panel);
+    border: 1px solid var(--border);
+    box-shadow: 0 1px 2px rgba(15, 23, 42, 0.04), inset 0 1px 0 rgba(255, 255, 255, 0.65);
     backdrop-filter: blur(12px);
     -webkit-backdrop-filter: blur(12px);
+    transition: border-color 0.25s ease, box-shadow 0.25s ease;
+}
+
+.clock:hover {
+    border-color: rgba(66, 144, 245, 0.35);
+    box-shadow: 0 4px 16px rgba(66, 144, 245, 0.13), inset 0 1px 0 rgba(255, 255, 255, 0.65);
 }
 
 .clock-main {
@@ -170,7 +208,7 @@ a {
     font-weight: 600;
     letter-spacing: 0.5px;
     line-height: 1;
-    color: var(--nb-text);
+    color: var(--text);
 }
 
 .clock-sec {
@@ -180,30 +218,138 @@ a {
     font-size: 11px;
     font-weight: 600;
     line-height: 1.2;
-    color: var(--nb-primary-dark);
+    color: var(--primary-dark);
     opacity: 0.9;
 }
 
 .clock-divider {
     width: 1px;
     height: 22px;
-    background: linear-gradient(180deg, transparent, var(--nb-border-strong), transparent);
+    background: linear-gradient(180deg, transparent, var(--border-strong), transparent);
+}
+
+.clock-meta {
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+    line-height: 1.15;
 }
 
 .clock-ymd {
-    font-size: 12px;
+    font-size: 11px;
     letter-spacing: 0.3px;
-    color: var(--nb-text-secondary);
+    color: var(--text-secondary);
     font-variant-numeric: tabular-nums;
-    white-space: nowrap;
 }
 
-/* ---------- 通用 ---------- */
+.clock-lunar {
+    font-size: 11px;
+    white-space: nowrap;
+    color: var(--primary-dark);
+    opacity: 0.85;
+}
+
+/* ===== Buttons ===== */
+.btn-primary,
+.btn-secondary,
+.btn-ghost,
+.btn-ghost-sm,
+.btn-mini {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    font-weight: 600;
+    border-radius: 10px;
+    transition: all 0.25s ease;
+}
+
+.btn-primary {
+    padding: 12px 28px;
+    background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+    color: #fff;
+    box-shadow: 0 4px 18px rgba(66, 144, 245, 0.35);
+}
+
+.btn-primary:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 26px rgba(66, 144, 245, 0.45);
+}
+
+.btn-secondary {
+    padding: 12px 28px;
+    background: var(--bg-1);
+    color: var(--text);
+    border: 1px solid var(--border-strong);
+}
+
+.btn-secondary:hover {
+    background: rgba(66, 144, 245, 0.06);
+    border-color: var(--primary);
+}
+
+.btn-ghost {
+    padding: 10px 22px;
+    background: transparent;
+    color: var(--text-secondary);
+    border: 1px solid var(--border);
+}
+
+.btn-ghost:hover {
+    color: var(--text);
+    border-color: var(--border-strong);
+    background: rgba(15, 23, 42, 0.03);
+}
+
+.btn-ghost-sm {
+    padding: 7px 16px;
+    background: transparent;
+    color: var(--text-secondary);
+    border: 1px solid var(--border);
+    font-size: 13px;
+}
+
+.btn-ghost-sm:hover {
+    color: var(--primary-dark);
+    border-color: var(--border-strong);
+}
+
+.btn-mini {
+    padding: 6px 12px;
+    font-size: 12px;
+    background: rgba(66, 144, 245, 0.10);
+    color: var(--primary-dark);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+}
+
+.btn-mini:hover {
+    background: rgba(66, 144, 245, 0.18);
+}
+
+/* ===== Main / Sections ===== */
+main {
+    position: relative;
+    z-index: 1;
+    padding-top: var(--header-h);
+}
+
+/* 正文里的外链（如央视原文）保留可点击的蓝色。
+   全局 a 已跟主站统一为 color:inherit，顶栏/页脚导航不受本条影响。 */
+main a[href^="http"] {
+    color: var(--primary-dark);
+}
+
+main a[href^="http"]:hover {
+    text-decoration: underline;
+}
+
+/* ---------- 业务层（news 专属） ---------- */
 
 .page-main {
     max-width: 1000px;
     margin: 0 auto;
-    padding: 34px 22px 60px;
+    padding: calc(var(--header-h) + 34px) 22px 60px;
 }
 
 .section-title {
@@ -225,9 +371,9 @@ a {
 }
 
 .notice {
-    background: rgba(255, 255, 255, 0.55);
+    background: var(--panel-strong);
     backdrop-filter: blur(8px);
-    border: 1px solid rgba(255, 255, 255, 0.65);
+    border: 1px solid var(--border);
     border-radius: 12px;
     padding: 14px 18px;
     font-size: 13.5px;
@@ -249,10 +395,10 @@ a {
 .featured-card {
     display: flex;
     gap: 26px;
-    background: rgba(255, 255, 255, 0.55);
+    background: var(--panel-strong);
     backdrop-filter: blur(10px);
     -webkit-backdrop-filter: blur(10px);
-    border: 1px solid rgba(255, 255, 255, 0.65);
+    border: 1px solid var(--border);
     border-radius: 18px;
     padding: 26px;
     transition: 0.25s;
@@ -392,10 +538,10 @@ a {
 .archive-card {
     display: flex;
     flex-direction: column;
-    background: rgba(255, 255, 255, 0.5);
+    background: var(--panel-strong);
     backdrop-filter: blur(8px);
     -webkit-backdrop-filter: blur(8px);
-    border: 1px solid rgba(255, 255, 255, 0.65);
+    border: 1px solid var(--border);
     border-radius: 14px;
     overflow: hidden;
     text-decoration: none;
@@ -458,17 +604,17 @@ a {
 .article-main {
     max-width: 860px;
     margin: 0 auto;
-    padding: 34px 22px 60px;
+    padding: calc(var(--header-h) + 34px) 22px 60px;
 }
 
 .article-hero {
     display: flex;
     gap: 26px;
     align-items: center;
-    background: rgba(255, 255, 255, 0.55);
+    background: var(--panel-strong);
     backdrop-filter: blur(10px);
     -webkit-backdrop-filter: blur(10px);
-    border: 1px solid rgba(255, 255, 255, 0.65);
+    border: 1px solid var(--border);
     border-radius: 18px;
     padding: 28px;
     margin-bottom: 28px;
@@ -525,10 +671,10 @@ a {
 
 .news-card {
     position: relative;
-    background: rgba(255, 255, 255, 0.5);
+    background: var(--panel-strong);
     backdrop-filter: blur(8px);
     -webkit-backdrop-filter: blur(8px);
-    border: 1px solid rgba(255, 255, 255, 0.65);
+    border: 1px solid var(--border);
     border-radius: 16px;
     padding: 22px 24px;
     margin-bottom: 18px;
@@ -637,42 +783,23 @@ a {
 
 /* ---------- 页脚（与 www.xhja.cn 统一） ---------- */
 
+
+/* ---------- 页脚 ---------- */
+
+/* ===== Footer ===== */
 .site-footer {
     position: relative;
     z-index: 1;
     margin-top: 44px;
-    border-top: 1px solid var(--nb-border-strong);
+    border-top: 1px solid var(--border-strong);
     background: linear-gradient(135deg, rgba(66, 144, 245, 0.10) 0%, rgba(6, 182, 212, 0.06) 100%);
     backdrop-filter: blur(12px);
-    -webkit-backdrop-filter: blur(12px);
 }
 
 .footer-inner {
-    max-width: 1240px;
+    max-width: 1320px;
     margin: 0 auto;
-    padding: 34px 24px 26px;
-}
-
-.footer-note {
-    max-width: 880px;
-    margin: 0 auto 22px;
-    padding: 12px 18px;
-    border-radius: 12px;
-    background: rgba(255, 255, 255, 0.45);
-    border: 1px solid rgba(255, 255, 255, 0.65);
-    font-size: 12.5px;
-    line-height: 1.85;
-    color: var(--nb-text-muted);
-    text-align: center;
-}
-
-.footer-note a {
-    color: var(--nb-primary-dark);
-    text-decoration: none;
-}
-
-.footer-note a:hover {
-    text-decoration: underline;
+    padding: 48px 24px 28px;
 }
 
 .footer-brand {
@@ -680,7 +807,7 @@ a {
     align-items: center;
     justify-content: center;
     gap: 14px;
-    margin-bottom: 22px;
+    margin-bottom: 28px;
 }
 
 .footer-logo {
@@ -693,12 +820,11 @@ a {
 .footer-name {
     font-size: 18px;
     font-weight: 700;
-    color: var(--nb-text);
 }
 
 .footer-slogan {
     font-size: 12px;
-    color: var(--nb-text-secondary);
+    color: var(--text-secondary);
     letter-spacing: 1px;
 }
 
@@ -707,35 +833,93 @@ a {
     justify-content: center;
     flex-wrap: wrap;
     gap: 10px 24px;
-    margin-bottom: 20px;
+    margin-bottom: 28px;
 }
 
 .footer-links a {
-    color: var(--nb-text-secondary);
+    color: var(--text-secondary);
     font-size: 14px;
-    text-decoration: none;
     transition: color 0.2s ease;
 }
 
 .footer-links a:hover {
-    color: var(--nb-primary-dark);
+    color: var(--primary-dark);
 }
 
 .footer-copy {
     text-align: center;
+    color: var(--text-muted);
     font-size: 13px;
-    color: var(--nb-text-muted);
 }
+
+.footer-beian {
+    margin-top: 10px;
+    text-align: center;
+    font-size: 12px;
+    color: var(--text-muted);
+}
+
+.footer-beian a {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    color: var(--text-muted);
+    text-decoration: none;
+    transition: color 0.2s;
+}
+
+.footer-beian a svg {
+    width: 14px;
+    height: 14px;
+    flex: 0 0 auto;
+    opacity: 0.85;
+}
+
+.footer-beian a:hover svg {
+    opacity: 1;
+}
+
+.footer-beian a:hover {
+    color: var(--primary-dark);
+}
+
+.beian-sep {
+    margin: 0 8px;
+    opacity: 0.4;
+}
+
+.footer-note {
+    max-width: 880px;
+    margin: 0 auto 22px;
+    padding: 12px 18px;
+    border-radius: 12px;
+    background: rgba(255, 255, 255, 0.45);
+    border: 1px solid var(--border);
+    font-size: 12.5px;
+    line-height: 1.85;
+    color: var(--text-muted);
+    text-align: center;
+}
+
+.footer-note a {
+    color: var(--primary-dark);
+    text-decoration: none;
+}
+
+.footer-note a:hover {
+    text-decoration: underline;
+}
+
 
 .footer-gen {
     margin-top: 6px;
     text-align: center;
     font-size: 12px;
-    color: var(--nb-text-muted);
+    color: var(--text-muted);
 }
 
 .footer-gen a {
-    color: var(--nb-primary-dark);
+    color: var(--primary-dark);
     text-decoration: none;
 }
 
@@ -744,41 +928,93 @@ a {
 }
 
 /* 深色模式 */
-@media (prefers-color-scheme: dark) {
+
+/* ---------- 响应式 ---------- */
+
+@media (max-width: 1024px) {
+    /* 中等屏：时钟只保留时:分:秒，避免顶栏拥挤 */
     .clock {
-        background: rgba(31, 33, 48, 0.62);
-        border-color: rgba(120, 126, 160, 0.25);
-        box-shadow: none;
+        gap: 0;
+        padding: 6px 12px;
     }
-    .clock-hm { color: #e8eaf2; }
-    .clock-sec { color: #7ec8f5; background: rgba(66, 144, 245, 0.16); }
-    .clock-ymd { color: #a6a9bd; }
-    .brand-name { color: #e8eaf2; }
-    .brand-slogan { color: #a6a9bd; }
-    .header-nav a { color: #a6a9bd; }
-    .header-nav a:hover, .header-nav a.cur { color: #7ec8f5; background: rgba(66, 144, 245, 0.14); }
-    .site-header {
-        background: linear-gradient(180deg, rgba(24, 26, 38, 0.88) 0%, rgba(28, 30, 44, 0.7) 100%);
-        border-bottom-color: rgba(120, 126, 160, 0.28);
-    }
-    .footer-note {
-        background: rgba(31, 33, 48, 0.55);
-        border-color: rgba(120, 126, 160, 0.22);
-        color: #8b8ea3;
-    }
-    .footer-note a, .footer-gen a { color: #7ec8f5; }
-    .footer-brand .footer-name { color: #e8eaf2; }
-    .footer-brand .footer-slogan { color: #a6a9bd; }
-    .footer-links a { color: #a6a9bd; }
-    .footer-links a:hover { color: #7ec8f5; }
-    .footer-copy, .footer-gen { color: #8b8ea3; }
-    .site-footer {
-        background: linear-gradient(135deg, rgba(66, 144, 245, 0.12) 0%, rgba(6, 182, 212, 0.08) 100%);
-        border-top-color: rgba(120, 126, 160, 0.28);
+
+    .clock-divider,
+    .clock-meta {
+        display: none;
     }
 }
 
-/* ---------- 响应式 ---------- */
+@media (max-width: 860px) {
+    /* 顶栏必须保持单行：一旦换行，实际高度会超过 --header-h，
+       而 main 的偏移是按 --header-h 算的，内容就会被压在顶栏底下。
+       所以窄屏让导航横向滚动，而不是掉到第二行。 */
+    .header-inner {
+        flex-wrap: nowrap;
+        padding: 0 14px;
+        gap: 8px;
+    }
+
+    .brand-logo {
+        width: 34px;
+        height: 34px;
+    }
+
+    .brand-name {
+        font-size: 16px;
+    }
+
+    .brand-slogan {
+        display: none;
+    }
+
+    .header-nav {
+        flex: 1 1 auto;
+        min-width: 0;
+        justify-content: flex-start;
+        overflow-x: auto;
+        -ms-overflow-style: none;
+        scrollbar-width: none;
+    }
+
+    .header-nav::-webkit-scrollbar {
+        display: none;
+    }
+
+    .header-nav a {
+        padding: 6px 10px;
+        font-size: 13.5px;
+        white-space: nowrap;
+    }
+
+    .clock {
+        padding: 4px 10px;
+        gap: 8px;
+    }
+
+    .clock-hm {
+        font-size: 16px;
+    }
+
+    .clock-ymd {
+        display: none;
+    }
+
+    .footer-inner {
+        padding: 26px 16px 22px;
+    }
+}
+
+@media (max-width: 768px) {
+    :root {
+        --header-h: 64px;
+    }
+}
+
+@media (max-width: 560px) {
+    .clock-sec {
+        display: none;
+    }
+}
 
 @media (max-width: 860px) {
     .featured-card {
@@ -814,98 +1050,9 @@ a {
         left: -6px;
     }
 
-    .site-header {
-        height: auto;
-        min-height: 66px;
-    }
-
-    .header-inner {
-        flex-wrap: wrap;
-        padding: 10px 14px;
-        gap: 10px;
-    }
-
-    .brand-logo {
-        width: 36px;
-        height: 36px;
-    }
-
-    .brand-name {
-        font-size: 17px;
-    }
-
-    .brand-slogan {
-        display: none;
-    }
-
-    .header-nav {
-        order: 3;
-        width: 100%;
-        justify-content: flex-start;
-        overflow-x: auto;
-        -ms-overflow-style: none;
-        scrollbar-width: none;
-    }
-
-    .header-nav::-webkit-scrollbar {
-        display: none;
-    }
-
-    .header-nav a {
-        padding: 6px 12px;
-        font-size: 13.5px;
-        white-space: nowrap;
-    }
-
-    .clock {
-        padding: 4px 10px;
-        gap: 8px;
-    }
-
-    .clock-hm {
-        font-size: 16px;
-    }
-
-    .clock-ymd {
-        display: none;
-    }
-
-    .footer-inner {
-        padding: 26px 16px 22px;
-    }
 }
 
-@media (max-width: 560px) {
-    .clock-sec {
-        display: none;
-    }
-}
-
-/* ===== 全站统一：站点互链导航 + 反馈邮箱 ===== */
-.xhja-sitenav{display:flex;flex-wrap:wrap;justify-content:flex-end;align-items:center;row-gap:2px;margin-left:auto;font-size:13px;line-height:1.9;text-align:right}
-.xhja-sitenav a{color:#5a6b7b;text-decoration:none;white-space:nowrap;transition:color .15s}
-.xhja-sitenav a + a::before{content:"丨";color:inherit;opacity:.4;margin:0 12px;font-weight:400}
-@media (max-width:820px){.xhja-sitenav{font-size:12.5px}.xhja-sitenav a + a::before{margin:0 8px}}
-.xhja-sitenav a:hover{color:#4290f5}
-.xhja-sitenav a.cur{color:#4290f5;font-weight:600}
-.xhja-feedback{margin-top:10px;font-size:13px;color:#6b7b8b}
-.xhja-feedback a{color:#4290f5;text-decoration:none;font-weight:600}
-.xhja-feedback a:hover{text-decoration:underline}
-@media (prefers-color-scheme: dark){
-  
-  .xhja-sitenav a{color:#a6a9bd}
-  .xhja-sitenav a.cur{color:#7ec8f5}
-  .xhja-feedback{color:#8b8ea3}
-  .xhja-feedback a{color:#7ec8f5}
-}
-
-/* ===== 全站统一：备案号 ===== */
-.xhja-icp{margin-top:10px;font-size:12.5px;line-height:1.8;color:#8a97a3;text-align:center}
-.xhja-icp a{display:inline-flex;align-items:center;gap:6px;color:inherit;text-decoration:none}
-.xhja-icp a:hover{color:#4290f5;text-decoration:underline}
-.xhja-icp svg{width:14px;height:14px;flex:0 0 auto;opacity:.85}
-.xhja-icp a:hover svg{opacity:1}
-@media (prefers-color-scheme:dark){.xhja-icp{color:#8b8ea3}.xhja-icp a:hover{color:#7ec8f5}}
+/* ---------- 全站统一元件（与主站同源） ---------- */
 
 /* xhj 统一页脚 / favicon（2026-09-22） */
 .xhja-mail{margin-top:12px;display:flex;align-items:center;justify-content:center;gap:6px;
