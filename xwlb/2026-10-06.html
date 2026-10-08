@@ -10,16 +10,6 @@
 <body>
 <div class="site-top">
 <!-- site-top:begin -->
-    <div class="topbar-mini">
-        <div class="mini-inner">
-            <div class="mini-left">
-                <span class="mini-date" data-clock-ymd>--/--</span>
-                <span class="mini-week" data-clock-week>星期-</span>
-                <span class="mini-tip">每日 08:00 更新</span>
-            </div>
-            <div class="mini-right"><a href="https://hot.xhja.cn/" target="_blank" rel="noopener">今日热榜</a><span class="mini-sep"></span><a href="https://tools.xhja.cn/" target="_blank" rel="noopener">工具站</a><span class="mini-sep"></span><a href="https://www.xhja.cn/" target="_blank" rel="noopener">主页</a></div>
-        </div>
-    </div>
     <header class="site-header">
         <div class="header-inner">
             <a class="brand" href="/" aria-label="回到首页">
@@ -87,52 +77,29 @@
     <footer class="site-footer">
 <!-- site-footer:begin -->
         <div class="footer-inner">
-            <div class="footer-top">
-                <div class="footer-brand">
-                    <img src="/assets/logo.png" alt="" class="footer-logo">
-                    <div>
-                        <div class="footer-name">行恒简安</div>
-                        <div class="footer-slogan">行恒致远 · 简安自得</div>
-                    </div>
-                </div>
-                <div class="footer-cols">
-                <div class="fcol">
-                    <h4>本站频道</h4>
-                        <a href="/">今日新闻</a>
-                        <a href="/xwlb/">新闻联播</a>
-                </div>
-                <div class="fcol">
-                    <h4>兄弟站点</h4>
-                        <a href="https://hot.xhja.cn/" target="_blank" rel="noopener">今日热榜</a>
-                        <a href="https://tools.xhja.cn/" target="_blank" rel="noopener">工具站</a>
-                        <a href="https://www.xhja.cn/" target="_blank" rel="noopener">主页</a>
-                </div>
-                <div class="fcol">
-                    <h4>联系</h4>
-                        <a href="mailto:x@xhja.cn">📧 x@xhja.cn</a>
-                </div>
+            <div class="footer-brand">
+                <img src="/assets/logo.png" alt="" class="footer-logo">
+                <div>
+                    <div class="footer-name">行恒简安</div>
+                    <div class="footer-slogan">行恒致远 · 简安自得</div>
                 </div>
             </div>
+            <div class="footer-links"><a href="/">今日新闻</a><a href="/xwlb/">新闻联播</a><a href="https://hot.xhja.cn/" target="_blank" rel="noopener">今日热榜</a><a href="https://tools.xhja.cn/" target="_blank" rel="noopener">工具站</a><a href="https://www.xhja.cn/" target="_blank" rel="noopener">主页</a></div>
             <div class="footer-note">内容来源：央视网《新闻联播》（tv.cctv.com），版权归原作者所有，本站仅作个人学习摘要，每条均附原文链接。</div>
-            <div class="footer-bottom">
-                <span class="footer-copy">© 2026 行恒简安 · All Rights Reserved</span>
-                <span class="footer-icp">
-                    <a href="https://beian.miit.gov.cn/" target="_blank" rel="noopener">浙ICP备2026078012号</a>
-                </span>
-                <span class="footer-gen">本页面由脚本自动生成于 2026-10-06 18:44 · <a href="/xwlb/">返回新闻列表</a></span>
+            <div class="footer-beian">
+                <a href="https://beian.miit.gov.cn/" target="_blank" rel="noopener">浙ICP备2026078012号</a>
             </div>
+            <div class="xhja-mail"><a href="mailto:x@xhja.cn">📧 联系我：x@xhja.cn</a></div>
+            <div class="footer-copy">© 2026 行恒简安 · All Rights Reserved</div>
         </div>
 <!-- site-footer:end -->
     </footer>
     <script>(function () {
-  var WEEK = ['日', '一', '二', '三', '四', '五', '六'];
   function pad(n) { return n < 10 ? '0' + n : '' + n; }
   function tick() {
     var d = new Date();
-    var s = [pad(d.getHours()) + ':' + pad(d.getMinutes()), pad(d.getSeconds()),
-             (d.getMonth() + 1) + '/' + d.getDate(), '星期' + WEEK[d.getDay()]];
-    var sel = ['[data-clock-hm]', '[data-clock-sec]',
-               '[data-clock-ymd]', '[data-clock-week]'];
+    var s = [pad(d.getHours()) + ':' + pad(d.getMinutes()), pad(d.getSeconds())];
+    var sel = ['[data-clock-hm]', '[data-clock-sec]'];
     for (var i = 0; i < sel.length; i++) {
       var el = document.querySelector(sel[i]);
       if (el && el.textContent !== s[i]) el.textContent = s[i];

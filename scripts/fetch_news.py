@@ -168,7 +168,6 @@ def render_article(d, items, cover_local):
     ds = d.isoformat()
     date_cn = '%d 年 %d 月 %d 日' % (d.year, d.month, d.day)
     weekday = WEEKDAYS[d.weekday()]
-    generated = datetime.now().strftime('%Y-%m-%d %H:%M')
 
     hero_cover = ('<div class="hero-cover"><img src="../%s" alt="%s 新闻联播"></div>' % (cover_local, date_cn)
                   if cover_local else '')
@@ -207,12 +206,10 @@ def render_article(d, items, cover_local):
         ('__HEADER__', render_header('xwlb')),
         ('__FOOTER__', render_footer(
             note='内容来源：央视网《新闻联播》（tv.cctv.com），版权归原作者所有，'
-                 '本站仅作个人学习摘要，每条均附原文链接。',
-            generated='本页面由脚本自动生成于 %s · <a href="/xwlb/">返回新闻列表</a>' % generated)),
+                 '本站仅作个人学习摘要，每条均附原文链接。')),
         ('__CLOCK_SCRIPT__', CLOCK_SCRIPT),
         ('__HERO_COVER__', hero_cover),
         ('__ITEMS__', '\n'.join(cards)),
-        ('__GENERATED__', generated),
     ]:
         html = html.replace(token, value)
     return html
@@ -277,7 +274,8 @@ def update_index(d, count, cover, items):
         'weekday': WEEKDAYS[d.weekday()],
         'count': count,
         'cover': ('/%s' % cover) if cover else '',
-        'url': 'xwlb/%s.html' % ds,
+        # 列表页在 /xwlb/ 下，这里必须是站点绝对路径，否则会拼成 /xwlb/xwlb/xxx.html
+        'url': '/xwlb/%s.html' % ds,
         'titles': [it['title'] for it in items[:3]],
     }
     data = [e for e in data if e.get('date') != ds]

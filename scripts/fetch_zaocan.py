@@ -578,7 +578,7 @@ def item_link(it):
     return '', ''
 
 
-def render_page(d, quotes, buckets, generated):
+def render_page(d, quotes, buckets):
     ds = d.isoformat()
     date_cn = '%d 年 %d 月 %d 日' % (d.year, d.month, d.day)
     weekday = WEEKDAYS[d.weekday()]
@@ -727,9 +727,7 @@ def render_page(d, quotes, buckets, generated):
         ('__HEADER__', render_header('home')),
         ('__FOOTER__', render_footer(
             note='数据来源：东方财富网、证券时报、上海证券报·中国证券网等公开信息，'
-                 '版权归原作者所有，本页仅作个人投资参考，<strong>不构成任何投资建议</strong>。',
-            generated='本页由脚本自动生成于 %s · 每日 08:00 更新 · <a href="/xwlb/">查看新闻联播</a>'
-                      % generated)),
+                 '版权归原作者所有，本页仅作个人投资参考，<strong>不构成任何投资建议</strong>。')),
         ('__CLOCK_SCRIPT__', CLOCK_SCRIPT),
         ('__FOCUS__', xwlb_card),
         ('__QUOTES__', '\n'.join(quote_rows)),
@@ -867,8 +865,7 @@ def main():
     for name, items in buckets.items():
         log('  %s：%d 条' % (name, len(items)))
 
-    generated = datetime.now().strftime('%Y-%m-%d %H:%M')
-    html_text = render_page(d, quotes, buckets, generated)
+    html_text = render_page(d, quotes, buckets)
     ZAOCAN_DIR.mkdir(parents=True, exist_ok=True)
     OUT_HTML.write_text(html_text, encoding='utf-8')
     update_index(d, quotes, buckets)

@@ -98,7 +98,7 @@ def migrate_frame(text, rel, is_index=False):
     gen = extract_gen(text)
     for pat in FOOT_PATTERNS:
         new_text, n = pat.subn(
-            lambda m: render_footer(note=note, generated=gen) + '\n', text, count=1)
+            lambda m: render_footer(note=note) + '\n', text, count=1)
         if n:
             text = new_text
             break
