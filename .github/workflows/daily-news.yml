@@ -47,11 +47,9 @@ jobs:
         with:
           python-version: '3.11'
 
-      # 顺序不可调换：fetch_zaocan 会读 xwlb/index.json[0] 渲染首页新闻联播入口
-      # 卡片，必须等 fetch_news 把当天条目顶到首位之后它读到的才是当天内容。
-      - name: Fetch zaocan（早参首页）
-        run: python scripts/fetch_zaocan.py --force
-
+      # 顺序不可调换：fetch_zaocan 会读 xwlb/index.json[0] 渲染首页的新闻联播入口，
+      # 必须**先跑 fetch_news** 把当天条目顶到首位，否则头条永远停在昨天。
+      # （2026-10-18 修：原来两条写反了，线上头条一直是前一天的联播。）
       - name: Fetch news（新闻联播）
         run: |
           ARGS=""
@@ -61,6 +59,9 @@ jobs:
             ARGS="--date ${{ github.event.inputs.date }}"
           fi
           python scripts/fetch_news.py $ARGS
+
+      - name: Fetch zaocan（早参首页）
+        run: python scripts/fetch_zaocan.py --force
 
       - name: Commit and push
         run: |
