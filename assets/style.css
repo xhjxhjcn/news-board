@@ -1255,6 +1255,99 @@ main .news-title a:hover {
     color: var(--mute);
 }
 
+/* ===== 页脚（与 www.xhja.cn 主站同款） ===== */
+.site-footer {
+    position: relative;
+    z-index: 1;
+    border-top: 1px solid var(--border-strong);
+    background: linear-gradient(135deg, rgba(66, 144, 245, 0.10) 0%, rgba(6, 182, 212, 0.06) 100%);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+}
+
+.footer-inner {
+    max-width: 1320px;
+    margin: 0 auto;
+    padding: 30px 24px 22px;
+}
+
+.footer-brand {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 14px;
+    margin-bottom: 18px;
+}
+
+.footer-logo {
+    width: 40px;
+    height: 40px;
+    object-fit: contain;
+    opacity: 0.9;
+}
+
+.footer-name {
+    font-size: 18px;
+    font-weight: 700;
+    letter-spacing: 1px;
+    color: var(--text);
+}
+
+.footer-slogan {
+    font-size: 12px;
+    color: var(--text-secondary);
+    letter-spacing: 1px;
+}
+
+.footer-links {
+    display: flex;
+    justify-content: center;
+    flex-wrap: wrap;
+    gap: 10px 24px;
+    margin-bottom: 16px;
+}
+
+.footer-links a {
+    font-size: 14px;
+    color: var(--text-secondary);
+    transition: color 0.2s ease;
+}
+
+.footer-links a:hover {
+    color: var(--primary-dark);
+}
+
+.footer-note {
+    max-width: 860px;
+    margin: 0 auto 12px;
+    text-align: center;
+    font-size: 12px;
+    line-height: 1.7;
+    color: var(--text-muted);
+}
+
+.footer-beian {
+    text-align: center;
+    font-size: 12px;
+    color: var(--text-muted);
+}
+
+.footer-beian a {
+    color: inherit;
+    transition: color 0.2s ease;
+}
+
+.footer-beian a:hover {
+    color: var(--primary-dark);
+}
+
+.footer-copy {
+    margin-top: 10px;
+    text-align: center;
+    color: var(--text-muted);
+    font-size: 13px;
+}
+
 /* ===== 响应式 ===== */
 @media (max-width: 1024px) {
     .portal {
@@ -1335,6 +1428,10 @@ main .news-title a:hover {
 @media (max-width: 560px) {
     main.portal {
         padding: calc(var(--frame-h) + 18px) 16px 40px;
+    }
+
+    .footer-inner {
+        padding: 24px 16px 18px;
     }
 
     .page-main,
