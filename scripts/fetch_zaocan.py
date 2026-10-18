@@ -585,30 +585,30 @@ def render_page(d, quotes, buckets):
 
     # 焦点头条（新闻联播）
     xwlb = load_xwlb_latest()
+    xwlb_count = 0
     if xwlb:
         cover = xwlb.get('cover', '')
         xwlb_date = xwlb.get('date', '')
         xwlb_weekday = xwlb.get('weekday', '')
         xwlb_count = xwlb.get('count', 0)
-        titles = xwlb.get('titles', [])[:4]
+        titles = xwlb.get('titles', [])[:3]
         cover_html = ('<img src="%s" alt="%s 新闻联播" loading="lazy">'
                       % (htmllib.escape(cover), htmllib.escape(xwlb_date))) if cover else ''
         title_items = ''.join('<li>%s</li>' % htmllib.escape(t) for t in titles)
         xwlb_card = (
-            '<a class="focus" href="/xwlb/%s.html">'
-            '<div class="focus-cover">%s<span class="focus-badge">头条</span></div>'
-            '<div class="focus-body">'
-            '<div class="focus-head"><span>%s · %s</span>'
-            '<span>央视网</span></div>'
+            '<a class="lead" href="/xwlb/%s.html">'
+            '<div class="lead-media">%s<span class="lead-tag">新闻联播</span></div>'
+            '<div class="lead-body">'
             '<h2>《新闻联播》主要内容</h2>'
-            '<ul class="focus-list">%s</ul>'
-            '<span class="focus-more">共 %d 条 · 阅读全文 →</span>'
+            '<ul class="lead-points">%s</ul>'
+            '<div class="lead-foot"><span>%s · %s</span><span>央视网</span>'
+            '<span class="more">共 %d 条 · 阅读全文 →</span></div>'
             '</div></a>'
             % (htmllib.escape(xwlb_date), cover_html,
-               htmllib.escape(xwlb_date), htmllib.escape(xwlb_weekday),
-               title_items, xwlb_count))
+               title_items, htmllib.escape(xwlb_date), htmllib.escape(xwlb_weekday),
+               xwlb_count))
     else:
-        xwlb_card = '<div class="focus empty">新闻联播内容暂未更新，今晚播出后自动上线。</div>'
+        xwlb_card = '<div class="lead lead-empty">新闻联播内容暂未更新，今晚播出后自动上线。</div>'
 
     # 外盘
     quote_rows = []
@@ -630,10 +630,10 @@ def render_page(d, quotes, buckets):
         else:
             val_str = '--'
         quote_rows.append(
-            '<div class="qz-item %s"><span class="qz-name">%s</span>'
-            '<span class="qz-val">%s</span>'
-            '<span class="qz-chg">%s</span></div>'
-            % (cls, htmllib.escape(q['name']), val_str, pct_str))
+            '<div class="tick"><span class="t-name">%s</span>'
+            '<span class="t-val">%s</span>'
+            '<span class="t-chg %s">%s</span></div>'
+            % (htmllib.escape(q['name']), val_str, cls, pct_str))
 
     # 栏目
     sections = []
@@ -643,29 +643,25 @@ def render_page(d, quotes, buckets):
         items = buckets.get(name, [])
         if not items:
             continue
-        cards = []
+        rows = []
         for it in items[:8]:
             time_str = it.get('time', '')
             if time_str and len(time_str) >= 16:
                 time_str = time_str[11:16]
-            summary = it.get('summary', '')
-            summary_html = ('<p class="item-summary">%s</p>' % htmllib.escape(summary)
-                            if summary else '')
-            tag = '<span class="tag-hot">重要</span>' if it.get('important') else ''
             link, target = item_link(it)
+            time_html = ('<span class="it-time">%s</span>' % htmllib.escape(time_str)
+                         if time_str else '')
             if link:
-                title_html = ('<a class="item-title" href="%s"%s>%s</a>'
-                              % (link, target, htmllib.escape(it['title'])))
+                rows.append('<li><a href="%s"%s>%s%s</a></li>'
+                            % (link, target, time_html, htmllib.escape(it['title'])))
             else:
-                title_html = '<span class="item-title">%s</span>' % htmllib.escape(it['title'])
-            cards.append(
-                '<article class="item"><div class="item-head">'
-                '<span class="item-time">%s</span>%s%s</div>%s</article>'
-                % (htmllib.escape(time_str), tag, title_html, summary_html))
+                rows.append('<li><span class="it-plain">%s%s</span></li>'
+                            % (time_html, htmllib.escape(it['title'])))
         sections.append(
-            '<section class="sec"><h2 class="sec-title">%s %s <span class="sec-count">%d</span></h2>'
-            '<div class="item-list">%s</div></section>'
-            % (icon, name, len(items), '\n'.join(cards)))
+            '<section class="block"><h2 class="block-title">%s'
+            '<span class="num">%d</span></h2>'
+            '<ul class="feed">%s</ul></section>'
+            % (name, len(items), '\n'.join(rows)))
 
     # 侧栏「热点排行」：重要的排前面，再按栏目顺序补齐，去重取 10 条
     pool = []
@@ -688,10 +684,10 @@ def render_page(d, quotes, buckets):
         cls = ' class="rank-item top"' if i <= 3 else ' class="rank-item"'
         text = '<span class="rank-text">%s</span>' % htmllib.escape(it['title'])
         if link:
-            hot_rows.append('<a%s href="%s"%s><span class="rank-no">%d</span>%s</a>'
+            hot_rows.append('<a%s href="%s"%s><span class="rank-no">%02d</span>%s</a>'
                             % (cls, link, target, i, text))
         else:
-            hot_rows.append('<div%s><span class="rank-no">%d</span>%s</div>'
+            hot_rows.append('<div%s><span class="rank-no">%02d</span>%s</div>'
                             % (cls, i, text))
 
     # 侧栏「外盘速览」（竖排，与顶部行情条同源）
@@ -719,6 +715,9 @@ def render_page(d, quotes, buckets):
         ('__TITLE__', '%s 市场要闻 · %s' % (date_cn, BRAND)),
         ('__DATE_CN__', date_cn),
         ('__WEEKDAY__', weekday),
+        ('__STAT_XWLB__', str(xwlb_count)),
+        ('__STAT_MARKET__', str(sum(len(v) for v in buckets.values()))),
+        ('__STAT_QUOTES__', str(len(quotes))),
         ('__HEADER__', render_header('home')),
         ('__FOOTER__', render_footer(
             note='数据来源：东方财富网、证券时报、上海证券报·中国证券网等公开信息，'
@@ -748,30 +747,37 @@ __HEADER__
 
     <main class="portal">
         <div class="portal-main">
-            <section class="zc-hero">
-                <div class="date">__DATE_CN__ · __WEEKDAY__</div>
-                <h1>今日新闻</h1>
-            </section>
+            <header class="page-head">
+                <div class="ph-main">
+                    <div class="page-kicker">__DATE_CN__ · __WEEKDAY__</div>
+                    <h1>今日新闻</h1>
+                </div>
+                <div class="stat-row">
+                    <div class="stat"><b>__STAT_XWLB__</b><span>联播条目</span></div>
+                    <div class="stat"><b>__STAT_MARKET__</b><span>市场要闻</span></div>
+                    <div class="stat"><b>__STAT_QUOTES__</b><span>外盘指标</span></div>
+                </div>
+            </header>
 
 __FOCUS__
 
-            <div class="qz-strip">
+            <section class="ticker">
 __QUOTES__
-            </div>
+            </section>
 
 __SECTIONS__
         </div>
 
         <aside class="portal-side">
             <div class="side-card">
-                <div class="side-title">🔥 热点排行</div>
+                <div class="side-title">热点排行</div>
                 <div class="rank-list">
 __HOT_LIST__
                 </div>
             </div>
 
             <div class="side-card">
-                <div class="side-title">📊 外盘速览</div>
+                <div class="side-title">外盘速览</div>
 __SIDE_QUOTES__
             </div>
         </aside>
