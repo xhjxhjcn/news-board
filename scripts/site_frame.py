@@ -57,13 +57,16 @@ def _links_html():
 
 
 def render_header(cur='home'):
-    """返回与主页同款的顶栏 HTML（一条主栏，无频道条）。cur 仅作兼容保留。"""
+    """返回与主页同款的顶栏 HTML（一条主栏，无频道条）。
+
+    左上角品牌在**任何子页都回主站** xhja.cn，不回本站首页（站长 2026-10-18 定）。
+    """
     return (
         '<div class="site-top">\n'
         '<!-- site-top:begin -->\n'
         '    <header class="site-header">\n'
         '        <div class="header-inner">\n'
-        '            <a class="brand" href="/" aria-label="回到首页">\n'
+        '            <a class="brand" href="https://xhja.cn/" aria-label="回到主页">\n'
         '                <img src="/assets/logo.png" alt="%s" class="brand-logo">\n'
         '                <div class="brand-text">\n'
         '                    <span class="brand-name">%s</span>\n'
@@ -87,27 +90,31 @@ def render_header(cur='home'):
 
 
 def render_footer(note=''):
-    """返回三行式紧凑页脚（2026-10-18 站长定：总共三行）。
+    """返回与 www.xhja.cn 主站完全一致的页脚（2026-10-18 站长定）。
 
-    第 1 行  品牌 + slogan
-    第 2 行  本站频道
-    第 3 行  版权 · 备案 · 联系邮箱
-
-    note 参数仅为兼容旧调用保留，**不再输出**（站长要求删掉数据来源那段）。
+    结构与主站一致：品牌行（logo + 名称 + slogan）/ 链接行 / 备案 / 版权。
+    note 参数仅为兼容旧调用保留，不再输出。
     """
     return (
         '    <footer class="site-footer">\n'
         '<!-- site-footer:begin -->\n'
         '        <div class="footer-inner">\n'
-        '            <div class="footer-line1">%s · %s</div>\n'
-        '            <div class="footer-line2">%s</div>\n'
-        '            <div class="footer-line3">© 2026 %s · '
-        '<a href="https://beian.miit.gov.cn/" target="_blank" rel="noopener">%s</a> · '
-        '<a href="mailto:%s">%s</a></div>\n'
+        '            <div class="footer-brand">\n'
+        '                <img src="/assets/logo.png" alt="" class="footer-logo">\n'
+        '                <div>\n'
+        '                    <div class="footer-name">%s</div>\n'
+        '                    <div class="footer-slogan">%s</div>\n'
+        '                </div>\n'
+        '            </div>\n'
+        '            <div class="footer-links">%s</div>\n'
+        '            <div class="footer-beian">\n'
+        '                <a href="https://beian.miit.gov.cn/" target="_blank" rel="noopener">%s</a>\n'
+        '            </div>\n'
+        '            <div class="footer-copy">© 2026 %s · All Rights Reserved</div>\n'
         '        </div>\n'
         '<!-- site-footer:end -->\n'
         '    </footer>'
-        % (BRAND, SLOGAN, _links_html(), BRAND, ICP, CONTACT, CONTACT)
+        % (BRAND, SLOGAN, _links_html(), ICP, BRAND)
     )
 
 
