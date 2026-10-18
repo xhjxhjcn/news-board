@@ -116,14 +116,14 @@
                 document.getElementById('loading').classList.add('hidden');
                 if (!Array.isArray(list) || !list.length) {
                     document.getElementById('notice').classList.remove('hidden');
-                    document.getElementById('notice').textContent = '暂无文章。每天《新闻联播》播出后（约 20:00）会自动更新。';
+                    document.getElementById('notice').textContent = '暂无文章。每天《新闻联播》播出后（约 19:40 起）会自动更新。';
                     return;
                 }
                 var today = todayStr();
                 if (list[0].date < today) {
                     var n = document.getElementById('notice');
                     n.classList.remove('hidden');
-                    n.textContent = '今天的内容还没上线：《新闻联播》每晚 19:30 播出，播完后约 20:00 自动更新，明早来看或晚上再刷新。';
+                    n.textContent = '今天的内容还没上线：《新闻联播》每晚 19:30 播出，播完后约 19:40 起自动更新，明早来看或晚上再刷新。';
                 }
                 document.getElementById('featured').innerHTML = renderFeatured(list[0]);
                 var ld = document.getElementById('latest-date');
