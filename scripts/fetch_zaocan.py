@@ -690,26 +690,6 @@ def render_page(d, quotes, buckets):
             hot_rows.append('<div%s><span class="rank-no">%02d</span>%s</div>'
                             % (cls, i, text))
 
-    # 侧栏「外盘速览」（竖排，与顶部行情条同源）
-    side_rows = []
-    for q in quotes[:8]:
-        pct = q.get('pct')
-        if pct is None:
-            cls, pct_str = 'flat', '--'
-        else:
-            pct = float(pct)
-            cls = 'up' if pct > 0 else ('down' if pct < 0 else 'flat')
-            pct_str = '%s%.2f%%' % ('+' if pct > 0 else '', pct)
-        val = q.get('value')
-        is_fx = q.get('group') == '外汇'
-        val_str = ('%.4f' % val if is_fx else '%.2f' % val) \
-            if isinstance(val, (int, float)) else '--'
-        side_rows.append(
-            '<div class="side-quote"><span class="sq-name">%s</span>'
-            '<span class="sq-val">%s</span>'
-            '<span class="sq-chg %s">%s</span></div>'
-            % (htmllib.escape(q['name']), val_str, cls, pct_str))
-
     html = PAGE_TEMPLATE
     for token, value in [
         ('__TITLE__', '%s 市场要闻 · %s' % (date_cn, BRAND)),
@@ -727,7 +707,6 @@ def render_page(d, quotes, buckets):
         ('__QUOTES__', '\n'.join(quote_rows)),
         ('__SECTIONS__', '\n'.join(sections)),
         ('__HOT_LIST__', '\n'.join(hot_rows)),
-        ('__SIDE_QUOTES__', '\n'.join(side_rows)),
     ]:
         html = html.replace(token, value)
     return html
@@ -774,11 +753,6 @@ __SECTIONS__
                 <div class="rank-list">
 __HOT_LIST__
                 </div>
-            </div>
-
-            <div class="side-card">
-                <div class="side-title">外盘速览</div>
-__SIDE_QUOTES__
             </div>
         </aside>
     </main>

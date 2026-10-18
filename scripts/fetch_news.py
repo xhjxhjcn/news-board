@@ -301,6 +301,14 @@ def process_day(d, force=False):
     if not items:
         return 'empty'
 
+    # 一期联播通常 13-16 条。19:40 第一轮若只解析到零星几条，说明央视还在陆续上传，
+    # 先不写盘（写盘后当天就 skip 了），等 20:20 那一轮再抓。
+    # 北京时间 21:00 之后不再卡条数，避免遇到短节目时永远生成不出来。
+    bj_hour = (datetime.utcnow() + timedelta(hours=8)).hour
+    if len(items) < 8 and bj_hour < 21:
+        log('%s：只解析到 %d 条，疑似还没传完，等下一轮' % (ds, len(items)))
+        return 'partial'
+
     log('%s：共解析 %d 条，开始抓取详情与图片……' % (ds, len(items)))
     day_dir = IMAGES_DIR / ds
 
@@ -365,6 +373,8 @@ def main():
             log('%s：当日内容未上线（未播出或已过期），跳过' % ds)
         elif r == 'empty':
             log('%s：页面无新闻条目，跳过' % ds)
+        elif r == 'partial':
+            log('%s：条目偏少，等下一轮补抓' % ds)
 
     ok = sum(1 for r in results.values() if r == 'ok')
     log('本次运行结束：新生成 %d 篇，共处理 %d 天' % (ok, len(days)))

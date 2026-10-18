@@ -87,37 +87,27 @@ def render_header(cur='home'):
 
 
 def render_footer(note=''):
-    """返回与 www.xhja.cn 主站同款的居中简洁页脚。
+    """返回三行式紧凑页脚（2026-10-18 站长定：总共三行）。
 
-    note  可选的来源 / 免责声明，原样插入（调用方自行保证 HTML 合法）。
+    第 1 行  品牌 + slogan
+    第 2 行  本站频道
+    第 3 行  版权 · 备案 · 联系邮箱
+
+    note 参数仅为兼容旧调用保留，**不再输出**（站长要求删掉数据来源那段）。
     """
-    note_html = ''
-    if note:
-        note_html = '            <div class="footer-note">%s</div>\n' % note
-
     return (
         '    <footer class="site-footer">\n'
         '<!-- site-footer:begin -->\n'
         '        <div class="footer-inner">\n'
-        '            <div class="footer-brand">\n'
-        '                <img src="/assets/logo.png" alt="" class="footer-logo">\n'
-        '                <div>\n'
-        '                    <div class="footer-name">%s</div>\n'
-        '                    <div class="footer-slogan">%s</div>\n'
-        '                </div>\n'
-        '            </div>\n'
-        '            <div class="footer-links">%s</div>\n'
-        '%s'
-        '            <div class="footer-beian">\n'
-        '                <a href="https://beian.miit.gov.cn/" target="_blank" rel="noopener">'
-        '%s</a>\n'
-        '            </div>\n'
-        '            <div class="xhja-mail"><a href="mailto:%s">📧 联系我：%s</a></div>\n'
-        '            <div class="footer-copy">© 2026 %s · All Rights Reserved</div>\n'
+        '            <div class="footer-line1">%s · %s</div>\n'
+        '            <div class="footer-line2">%s</div>\n'
+        '            <div class="footer-line3">© 2026 %s · '
+        '<a href="https://beian.miit.gov.cn/" target="_blank" rel="noopener">%s</a> · '
+        '<a href="mailto:%s">%s</a></div>\n'
         '        </div>\n'
         '<!-- site-footer:end -->\n'
         '    </footer>'
-        % (BRAND, SLOGAN, _links_html(), note_html, ICP, CONTACT, CONTACT, BRAND)
+        % (BRAND, SLOGAN, _links_html(), BRAND, ICP, CONTACT, CONTACT)
     )
 
 
