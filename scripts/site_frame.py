@@ -1,17 +1,18 @@
 # -*- coding: utf-8 -*-
-"""news.xhja.cn 全站统一的顶栏 / 页脚（2026-10-08 门户化改版）。
+"""news.xhja.cn 全站统一的顶栏 / 页脚（2026-10-18 与 www.xhja.cn 主页对齐）。
 
 所有页面（早参主页 index.html、新闻联播列表 xwlb/index.html、文章页 xwlb/<date>.html）
 都通过这里取顶栏与页脚 HTML，保证一处修改、全站生效。
 顶底栏的样式在 assets/style.css 的「顶栏 / 页脚」段。
 
-结构（2026-10-08 起去掉顶部日期细条，只留主栏 + 频道条）：
+结构（2026-10-18 起去掉频道条，只留与主页同款的一条主栏）：
 
-    .site-top  (position: fixed，整条吸顶)
-      ├─ .site-header   logo + 站名 + 时钟
-      └─ .channel-bar   频道导航条
+    .site-top
+      └─ .site-header   fixed 吸顶：logo + 站名 + 时钟
 
-页脚与 www.xhja.cn 主站同款：品牌居中 + 横向链接 + 声明 + 备案 + 联系 + 版权。
+去掉了两样东西（站长 2026-10-18 定）：
+  · 频道条（今日新闻 / 新闻联播 / 今日热榜 / 工具站 / 主页）—— 整条不要；
+  · 页脚里的兄弟站点链接 —— 只留本站两个频道。
 
 用法（在页面模板里留出占位符）：
 
@@ -30,39 +31,24 @@
 
 BRAND = '行恒简安'
 SLOGAN = '行恒致远 · 简安自得'
-SITE_NAME = '今日新闻'
 CONTACT = 'x@xhja.cn'
 ICP = '浙ICP备2026078012号'
 
-# (显示名, 链接, 是否站外) —— 频道条与页脚链接共用
+# (显示名, 链接, 是否站外) —— 页脚链接；只保留本站频道，不再挂兄弟站点
 SITE_NAV = (
     ('今日新闻', '/', False),
     ('新闻联播', '/xwlb/', False),
-    ('今日热榜', 'https://hot.xhja.cn/', True),
-    ('工具站', 'https://tools.xhja.cn/', True),
-    ('主页', 'https://www.xhja.cn/', True),
 )
 
-# 调用方传的频道 key → 对应的 href（用于高亮判定）
+# 调用方传的频道 key → 对应的 href（保留给页面高亮用，顶栏已无频道条）
 CUR_HREF = {
     'home': '/',
     'xwlb': '/xwlb/',
 }
 
 
-def _channel_html(nav_tag):
-    """频道条锚点，缩进 16 空格。cur 传 'home' / 'xwlb' 或直接传 href。"""
-    cur_href = CUR_HREF.get(nav_tag, nav_tag)
-    out = []
-    for name, href, ext in SITE_NAV:
-        cls = ' class="ch cur"' if href == cur_href else ' class="ch"'
-        tgt = ' target="_blank" rel="noopener"' if ext else ''
-        out.append('                <a%s href="%s"%s>%s</a>' % (cls, href, tgt, name))
-    return '\n'.join(out)
-
-
 def _links_html():
-    """页脚横向链接（与频道条同源，一站一列排开）。"""
+    """页脚横向链接（只列本站频道）。"""
     out = []
     for name, href, ext in SITE_NAV:
         tgt = ' target="_blank" rel="noopener"' if ext else ''
@@ -70,8 +56,8 @@ def _links_html():
     return ''.join(out)
 
 
-def render_header(cur):
-    """返回门户式顶栏 HTML（主栏 + 频道条）。cur 为 'home' | 'xwlb'。"""
+def render_header(cur='home'):
+    """返回与主页同款的顶栏 HTML（一条主栏，无频道条）。cur 仅作兼容保留。"""
     return (
         '<div class="site-top">\n'
         '<!-- site-top:begin -->\n'
@@ -81,7 +67,7 @@ def render_header(cur):
         '                <img src="/assets/logo.png" alt="%s" class="brand-logo">\n'
         '                <div class="brand-text">\n'
         '                    <span class="brand-name">%s</span>\n'
-        '                    <span class="brand-slogan">%s · %s</span>\n'
+        '                    <span class="brand-slogan">%s</span>\n'
         '                </div>\n'
         '            </a>\n'
         '            <div class="header-actions">\n'
@@ -94,14 +80,9 @@ def render_header(cur):
         '            </div>\n'
         '        </div>\n'
         '    </header>\n'
-        '    <nav class="channel-bar">\n'
-        '        <div class="channel-inner">\n'
-        '%s\n'
-        '        </div>\n'
-        '    </nav>\n'
         '<!-- site-top:end -->\n'
         '</div>'
-        % (BRAND, BRAND, SITE_NAME, SLOGAN, _channel_html(cur))
+        % (BRAND, BRAND, SLOGAN)
     )
 
 
@@ -109,7 +90,6 @@ def render_footer(note=''):
     """返回与 www.xhja.cn 主站同款的居中简洁页脚。
 
     note  可选的来源 / 免责声明，原样插入（调用方自行保证 HTML 合法）。
-          2026-10-08 起不再输出「本页由脚本自动生成于 …」那一行。
     """
     note_html = ''
     if note:

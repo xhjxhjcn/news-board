@@ -32,7 +32,7 @@ from datetime import date, datetime, timedelta
 from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
-from site_frame import (CLOCK_SCRIPT, SITE_NAV,  # noqa: E402
+from site_frame import (BRAND, CLOCK_SCRIPT,  # noqa: E402
                         render_footer, render_header)
 
 ROOT = Path(__file__).resolve().parent.parent
@@ -714,14 +714,9 @@ def render_page(d, quotes, buckets):
             '<span class="sq-chg %s">%s</span></div>'
             % (htmllib.escape(q['name']), val_str, cls, pct_str))
 
-    site_links = ''.join(
-        '<a href="%s"%s>%s</a>'
-        % (href, (' target="_blank" rel="noopener"' if ext else ''), name)
-        for name, href, ext in SITE_NAV if ext)
-
     html = PAGE_TEMPLATE
     for token, value in [
-        ('__TITLE__', '%s 新闻 · 徐宏江的小站' % date_cn),
+        ('__TITLE__', '%s 市场要闻 · %s' % (date_cn, BRAND)),
         ('__DATE_CN__', date_cn),
         ('__WEEKDAY__', weekday),
         ('__HEADER__', render_header('home')),
@@ -734,7 +729,6 @@ def render_page(d, quotes, buckets):
         ('__SECTIONS__', '\n'.join(sections)),
         ('__HOT_LIST__', '\n'.join(hot_rows)),
         ('__SIDE_QUOTES__', '\n'.join(side_rows)),
-        ('__SITE_LINKS__', site_links),
     ]:
         html = html.replace(token, value)
     return html
@@ -746,7 +740,7 @@ PAGE_TEMPLATE = '''<!DOCTYPE html>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>__TITLE__</title>
-    <meta name="description" content="__DATE_CN__ 每日新闻：隔夜外盘、宏观要闻、重磅公告、板块异动、风险提示，开盘前速览。">
+    <meta name="description" content="__DATE_CN__ 市场要闻速览：宏观、公告与风险提示。">
     <link rel="stylesheet" href="assets/style.css">
 </head>
 <body>
@@ -757,7 +751,6 @@ __HEADER__
             <section class="zc-hero">
                 <div class="date">__DATE_CN__ · __WEEKDAY__</div>
                 <h1>今日新闻</h1>
-                <div class="tip">隔夜外盘 · 宏观要闻 · 重磅公告 · 板块异动 · 风险提示，开盘前 3 分钟速览</div>
             </section>
 
 __FOCUS__
@@ -780,13 +773,6 @@ __HOT_LIST__
             <div class="side-card">
                 <div class="side-title">📊 外盘速览</div>
 __SIDE_QUOTES__
-            </div>
-
-            <div class="side-card">
-                <div class="side-title">🧭 兄弟站点</div>
-                <div class="side-links">
-__SITE_LINKS__
-                </div>
             </div>
         </aside>
     </main>

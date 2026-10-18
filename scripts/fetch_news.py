@@ -32,7 +32,7 @@ from datetime import date, datetime, timedelta
 from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
-from site_frame import CLOCK_SCRIPT, render_footer, render_header  # noqa: E402
+from site_frame import BRAND, CLOCK_SCRIPT, render_footer, render_header  # noqa: E402
 
 ROOT = Path(__file__).resolve().parent.parent
 NEWS_DIR = ROOT / 'xwlb'
@@ -199,7 +199,7 @@ def render_article(d, items, cover_local):
 
     html = ARTICLE_TEMPLATE
     for token, value in [
-        ('__TITLE__', '%s 新闻联播主要内容 · 徐宏江的小站' % date_cn),
+        ('__TITLE__', '%s 新闻联播主要内容 · %s' % (date_cn, BRAND)),
         ('__DATE_CN__', date_cn),
         ('__WEEKDAY__', weekday),
         ('__COUNT__', str(len(items))),

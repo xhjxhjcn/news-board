@@ -29,9 +29,8 @@
     --radius-sm: 10px;
     --radius-md: 14px;
     --radius-lg: 20px;
-    --header-h: 62px;
-    --channel-h: 46px;
-    --frame-h: 108px;
+    --header-h: 76px;
+    --frame-h: var(--header-h);   /* 顶栏只有一条主栏，正文从顶栏下沿开始 */
     --up: #e5484d;
     --down: #0f9d58;
 }
@@ -82,21 +81,33 @@ button {
     outline: none;
 }
 
-/* ===== 门户顶栏：主栏 + 频道条（整条 .site-top 吸顶） ===== */
+/* ===== 顶栏：与 www.xhja.cn 主页同款（一条主栏，无频道条） ===== */
 .site-top {
+    /* 纯包装容器，定位交给 .site-header，与主页保持一致 */
+}
+
+.site-header {
     position: fixed;
     top: 0;
     left: 0;
     right: 0;
     z-index: 1000;
-}
-
-/* --- 主栏 --- */
-.site-header {
     height: var(--header-h);
-    background: linear-gradient(180deg, rgba(255, 255, 255, 0.94) 0%, rgba(238, 244, 253, 0.74) 100%);
+    background: linear-gradient(180deg, rgba(238, 244, 253, 0.85) 0%, rgba(231, 239, 251, 0.62) 100%);
     backdrop-filter: blur(20px);
     -webkit-backdrop-filter: blur(20px);
+    border-bottom: 1px solid var(--border);
+}
+
+.site-header::after {
+    content: '';
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: -1px;
+    height: 1px;
+    background: linear-gradient(90deg, transparent, var(--primary), var(--accent), transparent);
+    opacity: 0.65;
 }
 
 .header-inner {
@@ -107,21 +118,21 @@ button {
     display: flex;
     align-items: center;
     justify-content: space-between;
-    gap: 20px;
+    gap: 24px;
 }
 
 .brand {
     display: flex;
     align-items: center;
-    gap: 12px;
+    gap: 14px;
     flex-shrink: 0;
 }
 
 .brand-logo {
-    height: 38px;
-    width: auto;
+    width: 42px;
+    height: 42px;
     object-fit: contain;
-    filter: drop-shadow(0 2px 6px rgba(66, 144, 245, 0.22));
+    filter: drop-shadow(0 2px 6px rgba(66, 144, 245, 0.25));
 }
 
 .brand-text {
@@ -131,7 +142,7 @@ button {
 }
 
 .brand-name {
-    font-size: 21px;
+    font-size: 20px;
     font-weight: 800;
     letter-spacing: 1px;
     color: var(--text);
@@ -140,7 +151,7 @@ button {
 .brand-slogan {
     font-size: 11px;
     color: var(--text-secondary);
-    letter-spacing: 0.5px;
+    letter-spacing: 2px;
 }
 
 .header-actions {
@@ -148,65 +159,6 @@ button {
     align-items: center;
     gap: 12px;
     flex-shrink: 0;
-}
-
-/* --- 频道导航条 --- */
-.channel-bar {
-    height: var(--channel-h);
-    background: linear-gradient(180deg, rgba(255, 255, 255, 0.9) 0%, rgba(240, 246, 255, 0.72) 100%);
-    border-top: 1px solid var(--border);
-    border-bottom: 1px solid var(--border);
-    backdrop-filter: blur(20px);
-    -webkit-backdrop-filter: blur(20px);
-}
-
-.channel-inner {
-    max-width: 1320px;
-    height: 100%;
-    margin: 0 auto;
-    padding: 0 24px;
-    display: flex;
-    align-items: center;
-    gap: 2px;
-    overflow-x: auto;
-    -ms-overflow-style: none;
-    scrollbar-width: none;
-}
-
-.channel-inner::-webkit-scrollbar {
-    display: none;
-}
-
-.ch {
-    position: relative;
-    display: flex;
-    align-items: center;
-    height: 100%;
-    padding: 0 16px;
-    font-size: 15px;
-    font-weight: 600;
-    color: var(--text-secondary);
-    white-space: nowrap;
-    transition: color 0.2s ease;
-}
-
-.ch:hover {
-    color: var(--primary-dark);
-}
-
-.ch.cur {
-    color: var(--primary-dark);
-}
-
-.ch.cur::after {
-    content: '';
-    position: absolute;
-    left: 12px;
-    right: 12px;
-    bottom: 0;
-    height: 3px;
-    border-radius: 3px 3px 0 0;
-    background: linear-gradient(90deg, var(--primary), var(--accent));
 }
 
 /* ===== 顶部时钟 ===== */
@@ -846,7 +798,6 @@ main .news-title a {
 .site-footer {
     position: relative;
     z-index: 1;
-    margin-top: 40px;
     border-top: 1px solid var(--border-strong);
     background: linear-gradient(135deg, rgba(66, 144, 245, 0.10) 0%, rgba(6, 182, 212, 0.06) 100%);
     backdrop-filter: blur(12px);
@@ -856,7 +807,7 @@ main .news-title a {
 .footer-inner {
     max-width: 1320px;
     margin: 0 auto;
-    padding: 40px 24px 26px;
+    padding: 30px 24px 22px;
 }
 
 .footer-brand {
@@ -864,7 +815,7 @@ main .news-title a {
     align-items: center;
     justify-content: center;
     gap: 14px;
-    margin-bottom: 22px;
+    margin-bottom: 18px;
 }
 
 .footer-logo {
@@ -892,7 +843,7 @@ main .news-title a {
     justify-content: center;
     flex-wrap: wrap;
     gap: 10px 24px;
-    margin-bottom: 20px;
+    margin-bottom: 16px;
 }
 
 .footer-links a {
@@ -907,16 +858,16 @@ main .news-title a {
 
 .footer-note {
     max-width: 860px;
-    margin: 0 auto 18px;
+    margin: 0 auto 12px;
     text-align: center;
-    font-size: 12.5px;
-    line-height: 1.8;
+    font-size: 12px;
+    line-height: 1.7;
     color: var(--text-muted);
 }
 
 .footer-beian {
     text-align: center;
-    font-size: 12.5px;
+    font-size: 12px;
     color: var(--text-muted);
 }
 
@@ -930,9 +881,7 @@ main .news-title a {
 }
 
 .footer-copy {
-    margin-top: 16px;
-    padding-top: 14px;
-    border-top: 1px dashed var(--border);
+    margin-top: 10px;
     text-align: center;
     color: var(--text-muted);
     font-size: 13px;
@@ -1472,12 +1421,6 @@ main a.rank-item:hover .rank-text {
 }
 
 @media (max-width: 900px) {
-    :root {
-        --header-h: 56px;
-        --channel-h: 44px;
-        --frame-h: 100px;
-    }
-
     .qz-strip {
         grid-template-columns: repeat(2, minmax(0, 1fr));
     }
@@ -1508,25 +1451,12 @@ main a.rank-item:hover .rank-text {
 }
 
 @media (max-width: 768px) {
-    .brand-logo {
-        height: 32px;
+    :root {
+        --header-h: 64px;
     }
 
     .brand-name {
-        font-size: 18px;
-    }
-
-    .brand-slogan {
-        display: none;
-    }
-
-    .channel-inner {
-        padding: 0 12px;
-    }
-
-    .ch {
-        padding: 0 11px;
-        font-size: 14px;
+        font-size: 16px;
     }
 
     .clock {

@@ -2,10 +2,11 @@ name: daily-news
 
 on:
   schedule:
-    - cron: '0 0 * * 1-5'
-    - cron: '30 0 * * 1-5'
-    - cron: '0 13 * * *'
-    - cron: '0 14 * * *'
+    # 注意：GitHub cron 是 UTC，北京时间 = UTC+8
+    - cron: '0 0 * * 1-5'      # 08:00 早参
+    - cron: '30 0 * * 1-5'     # 08:30 早参补抓
+    - cron: '0 12 * * *'       # 20:00 新闻联播（19:30 播完后第一轮，2026-10-18 由 21:00 提前）
+    - cron: '0 14 * * *'       # 22:00 兜底补抓
   workflow_dispatch:
     inputs:
       date:
